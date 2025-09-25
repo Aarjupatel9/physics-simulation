@@ -1,41 +1,33 @@
-# Prerequisites
-*.d
+# Build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
 
-# Compiled Object files
-*.slo
-*.lo
+# Fetched dependencies
+_deps/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Binaries/libs/objs
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
 *.a
 *.lib
-
-# Executables
+*.dll
+*.so
+*.dylib
 *.exe
-*.out
 *.app
+*.out
 
-# debug information files
-*.dwo
+
+# extra files
+todo.txt

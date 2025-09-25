@@ -2,8 +2,8 @@
 #include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../scenarios/BaseScenario.h"
-#include "../scenarios/BasicDemoScenario.h"
+#include "scenarios/BaseScenario.h"
+#include "scenarios/BasicDemoScenario.h"
 
 // Initialize GLFW and OpenGL context
 GLFWwindow* initializeWindow() {
