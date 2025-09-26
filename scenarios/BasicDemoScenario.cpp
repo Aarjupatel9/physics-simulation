@@ -3,6 +3,9 @@
 #include "../src/shapes/Box.h"
 #include "../src/shapes/Sphere.h"
 #include "../src/rendering/FPSRenderer.h"
+#include "../src/rendering/MeshCache.h"
+#include "../src/core/InertiaTensorCache.h"
+#include "../src/core/PhysicsObjectPool.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -76,15 +79,22 @@ bool BasicDemoScenario::initialize(GLFWwindow* window) {
         m_camera->setPitch(-15.0f); // Look down to see ground
     }
     
-    // Generate meshes
-    m_cubeMesh = std::make_unique<Mesh>();
-    m_cubeMesh->loadVertices(MeshGenerator::generateCube());
+    // Preload common meshes into cache
+    MeshCache::getInstance().preloadCommonMeshes();
     
-    m_sphereMesh = std::make_unique<Mesh>();
-    m_sphereMesh->loadVertices(MeshGenerator::generateSphere(32, 16, 0.5f));
+    // Pre-allocate physics objects
+    PhysicsObjectPool::getInstance().preallocateBodies();
     
-    m_groundMesh = std::make_unique<Mesh>();
-    m_groundMesh->loadVertices(MeshGenerator::generateGroundPlane());
+    // Get meshes from cache
+    m_cubeMesh = MeshCache::getInstance().getMesh(MeshCache::CUBE_KEY);
+    m_sphereMesh = MeshCache::getInstance().getMesh(MeshCache::SPHERE_KEY);
+    m_groundMesh = MeshCache::getInstance().getMesh(MeshCache::GROUND_PLANE_KEY);
+    
+    // Verify meshes were loaded
+    if (!m_cubeMesh || !m_sphereMesh || !m_groundMesh) {
+        std::cerr << "Failed to load meshes from cache" << std::endl;
+        return false;
+    }
     
     // Setup GLFW callbacks
     glfwSetCursorPosCallback(window, Camera::mouseCallback);
@@ -122,7 +132,13 @@ void BasicDemoScenario::update(float deltaTime) {
                // Estimate draw calls and triangles (3 objects: cube, sphere, ground)
                int drawCalls = 3; // One draw call per object
                int trianglesRendered = 12 + 32 + 2; // Cube: 12, Sphere: 32, Ground: 2
-               m_fpsRenderer->update(deltaTime, m_objectCount, m_collisionChecks, drawCalls, trianglesRendered);
+               size_t meshCacheSize = MeshCache::getInstance().getCacheSize();
+               size_t inertiaCacheSize = InertiaTensorCache::getInstance().getCacheSize();
+               size_t objectPoolAvailable = PhysicsObjectPool::getInstance().getTotalAvailable();
+               size_t objectPoolReused = PhysicsObjectPool::getInstance().getTotalReused();
+               // Estimate collision checks (n*(n-1)/2 for pairwise checks)
+               int collisionChecks = (m_objectCount * (m_objectCount - 1)) / 2;
+               m_fpsRenderer->update(deltaTime, m_objectCount, collisionChecks, drawCalls, trianglesRendered, meshCacheSize, inertiaCacheSize, objectPoolAvailable, objectPoolReused);
            }
 }
 
@@ -164,10 +180,22 @@ void BasicDemoScenario::render() {
             bool isSphere = (i - 2) % 2 == 0; // -2 to account for original cube and sphere
             if (isSphere) {
                 m_shader->setUniform("uColor", glm::vec3(0.8f, 0.2f, 0.8f)); // Magenta
-                m_sphereMesh->draw();
+                // Use cached small sphere mesh for performance test objects
+                auto smallSphereMesh = MeshCache::getInstance().getMesh(MeshCache::SPHERE_SMALL_KEY);
+                if (smallSphereMesh) {
+                    smallSphereMesh->draw();
+                } else {
+                    m_sphereMesh->draw(); // Fallback to regular sphere
+                }
             } else {
                 m_shader->setUniform("uColor", glm::vec3(0.2f, 0.8f, 0.2f)); // Green
-                m_cubeMesh->draw();
+                // Use cached small cube mesh for performance test objects
+                auto smallCubeMesh = MeshCache::getInstance().getMesh(MeshCache::CUBE_SMALL_KEY);
+                if (smallCubeMesh) {
+                    smallCubeMesh->draw();
+                } else {
+                    m_cubeMesh->draw(); // Fallback to regular cube
+                }
             }
         }
     }

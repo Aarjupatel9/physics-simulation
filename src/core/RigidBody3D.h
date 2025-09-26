@@ -50,6 +50,9 @@ public:
     glm::quat getRotation() const { return m_rotation; }
     glm::vec3 getLinearVelocity() const { return m_linearVelocity; }
     glm::vec3 getAngularVelocity() const { return m_angularVelocity; }
+    glm::vec3 getVelocity() const { return m_linearVelocity; }
+    glm::vec3 getForce() const { return m_force; }
+    glm::vec3 getTorque() const { return m_torque; }
     float getMass() const { return m_mass; }
     float getInverseMass() const { return m_inverseMass; }
     bool isStatic() const { return m_isStatic; }
@@ -61,10 +64,14 @@ public:
     void setRotation(const glm::quat& rotation) { m_rotation = rotation; }
     void setLinearVelocity(const glm::vec3& velocity) { m_linearVelocity = velocity; }
     void setAngularVelocity(const glm::vec3& velocity) { m_angularVelocity = velocity; }
+    void setVelocity(const glm::vec3& velocity) { m_linearVelocity = velocity; }
+    void setForce(const glm::vec3& force) { m_force = force; }
+    void setTorque(const glm::vec3& torque) { m_torque = torque; }
     void setMass(float mass);
     void setStatic(bool isStatic);
     void setGravityEnabled(bool enabled) { m_gravityEnabled = enabled; }
     void setScale(const glm::vec3& scale);
+    void setShape(std::unique_ptr<BaseShape> shape);
     
     // Material property setters
     void setDensity(float density);

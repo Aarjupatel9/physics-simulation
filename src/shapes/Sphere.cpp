@@ -1,5 +1,6 @@
 #include "Sphere.h"
 #include "../core/PhysicsConstants.h"
+#include "../core/InertiaTensorCache.h"
 #include <cmath>
 
 Sphere::Sphere(float radius, int segments) 
@@ -13,13 +14,32 @@ float Sphere::getVolume() const {
 
 glm::mat3 Sphere::getInertiaTensor(float mass) const {
     float scaledRadius = m_radius * std::max({m_scale.x, m_scale.y, m_scale.z});
+    
+    // Generate cache key
+    std::string key = InertiaTensorCache::generateSphereKey(scaledRadius, mass);
+    
+    // Check cache first
+    auto& cache = InertiaTensorCache::getInstance();
+    glm::mat3 cached = cache.getInertiaTensor(key);
+    
+    // If not identity matrix, return cached result
+    if (cached != glm::mat3(1.0f)) {
+        return cached;
+    }
+    
+    // Calculate inertia tensor for a sphere
     float I = (2.0f / 5.0f) * mass * scaledRadius * scaledRadius;
     
-    return glm::mat3(
+    glm::mat3 tensor(
         I, 0.0f, 0.0f,
         0.0f, I, 0.0f,
         0.0f, 0.0f, I
     );
+    
+    // Cache the result
+    cache.cacheInertiaTensor(key, tensor);
+    
+    return tensor;
 }
 
 glm::vec3 Sphere::getBoundingBoxMin() const {

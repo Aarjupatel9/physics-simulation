@@ -19,7 +19,7 @@ public:
     bool initialize();
     
     // Update performance metrics (call every frame)
-    void update(float deltaTime, int objectCount, int collisionChecks, int drawCalls = 0, int trianglesRendered = 0);
+    void update(float deltaTime, int objectCount, int collisionChecks, int drawCalls = 0, int trianglesRendered = 0, size_t meshCacheSize = 0, size_t inertiaCacheSize = 0, size_t objectPoolAvailable = 0, size_t objectPoolReused = 0);
     
     // Render the performance display
     void render(const glm::mat4& view, const glm::mat4& projection);
@@ -53,13 +53,21 @@ private:
         float gpuUsage = 0.0f;
         float cpuUsage = 0.0f;
         
-        // Advanced metrics
-        int drawCalls = 0;
-        int trianglesRendered = 0;
-        float gpuMemoryUsage = 0.0f;
-        float averageFrameTime = 0.0f;
-        float minFrameTime = 0.0f;
-        float maxFrameTime = 0.0f;
+               // Advanced metrics
+               int drawCalls = 0;
+               int trianglesRendered = 0;
+               float gpuMemoryUsage = 0.0f;
+               float averageFrameTime = 0.0f;
+               float minFrameTime = 0.0f;
+               float maxFrameTime = 0.0f;
+               
+               // Cache metrics
+               size_t meshCacheSize = 0;
+               size_t inertiaCacheSize = 0;
+               
+               // Object pool metrics
+               size_t objectPoolAvailable = 0;
+               size_t objectPoolReused = 0;
         
         // Rolling averages
         std::vector<float> fpsHistory;
@@ -98,7 +106,7 @@ private:
     bool m_fontLoaded = false;
     
     // Helper methods
-    void updateMetrics(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered);
+    void updateMetrics(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered, size_t meshCacheSize, size_t inertiaCacheSize, size_t objectPoolAvailable, size_t objectPoolReused);
     void updateMemoryUsage();
     void updateGPUUsage();
     void updateCPUUsage();

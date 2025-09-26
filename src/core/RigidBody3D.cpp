@@ -28,6 +28,11 @@ void RigidBody3D::setMass(float mass) {
     updateInertiaTensor();
 }
 
+void RigidBody3D::setShape(std::unique_ptr<BaseShape> shape) {
+    m_shape = std::move(shape);
+    updateInertiaTensor();
+}
+
 void RigidBody3D::setStatic(bool isStatic) {
     m_isStatic = isStatic;
     if (isStatic) {

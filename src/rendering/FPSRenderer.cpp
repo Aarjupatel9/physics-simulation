@@ -42,8 +42,8 @@ bool FPSRenderer::initialize() {
     return true;
 }
 
-void FPSRenderer::update(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered) {
-    updateMetrics(deltaTime, objectCount, collisionChecks, drawCalls, trianglesRendered);
+void FPSRenderer::update(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered, size_t meshCacheSize, size_t inertiaCacheSize, size_t objectPoolAvailable, size_t objectPoolReused) {
+    updateMetrics(deltaTime, objectCount, collisionChecks, drawCalls, trianglesRendered, meshCacheSize, inertiaCacheSize, objectPoolAvailable, objectPoolReused);
 }
 
 void FPSRenderer::render(const glm::mat4& view, const glm::mat4& projection) {
@@ -103,7 +103,7 @@ void FPSRenderer::render(const glm::mat4& view, const glm::mat4& projection) {
     glUseProgram(currentProgram);
 }
 
-void FPSRenderer::updateMetrics(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered) {
+void FPSRenderer::updateMetrics(float deltaTime, int objectCount, int collisionChecks, int drawCalls, int trianglesRendered, size_t meshCacheSize, size_t inertiaCacheSize, size_t objectPoolAvailable, size_t objectPoolReused) {
     // Update basic metrics
     m_metrics.fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
     m_metrics.frameTime = deltaTime;
@@ -111,6 +111,10 @@ void FPSRenderer::updateMetrics(float deltaTime, int objectCount, int collisionC
     m_metrics.collisionChecks = collisionChecks;
     m_metrics.drawCalls = drawCalls;
     m_metrics.trianglesRendered = trianglesRendered;
+    m_metrics.meshCacheSize = meshCacheSize;
+    m_metrics.inertiaCacheSize = inertiaCacheSize;
+    m_metrics.objectPoolAvailable = objectPoolAvailable;
+    m_metrics.objectPoolReused = objectPoolReused;
     
     // Update rolling averages
     m_metrics.fpsHistory.erase(m_metrics.fpsHistory.begin());

@@ -42,9 +42,9 @@ private:
     // Rendering
     std::unique_ptr<Shader> m_shader;
     std::unique_ptr<Camera> m_camera;
-    std::unique_ptr<Mesh> m_cubeMesh;
-    std::unique_ptr<Mesh> m_sphereMesh;
-    std::unique_ptr<Mesh> m_groundMesh;
+    std::shared_ptr<Mesh> m_cubeMesh;
+    std::shared_ptr<Mesh> m_sphereMesh;
+    std::shared_ptr<Mesh> m_groundMesh;
     
     // Window reference for input
     GLFWwindow* m_window;

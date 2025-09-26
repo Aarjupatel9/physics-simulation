@@ -1,5 +1,6 @@
 #include "Box.h"
 #include "../core/PhysicsConstants.h"
+#include "../core/InertiaTensorCache.h"
 #include <algorithm>
 
 Box::Box(float width, float height, float depth) 
@@ -13,18 +14,35 @@ float Box::getVolume() const {
 
 glm::mat3 Box::getInertiaTensor(float mass) const {
     glm::vec3 scaled = m_dimensions * m_scale;
-    float w = scaled.x, h = scaled.y, d = scaled.z;
     
-    // Inertia tensor for a box centered at origin
+    // Generate cache key
+    std::string key = InertiaTensorCache::generateBoxKey(scaled.x, scaled.y, scaled.z, mass);
+    
+    // Check cache first
+    auto& cache = InertiaTensorCache::getInstance();
+    glm::mat3 cached = cache.getInertiaTensor(key);
+    
+    // If not identity matrix, return cached result
+    if (cached != glm::mat3(1.0f)) {
+        return cached;
+    }
+    
+    // Calculate inertia tensor for a box centered at origin
+    float w = scaled.x, h = scaled.y, d = scaled.z;
     float Ixx = mass * (h * h + d * d) / 12.0f;
     float Iyy = mass * (w * w + d * d) / 12.0f;
     float Izz = mass * (w * w + h * h) / 12.0f;
     
-    return glm::mat3(
+    glm::mat3 tensor(
         Ixx, 0.0f, 0.0f,
         0.0f, Iyy, 0.0f,
         0.0f, 0.0f, Izz
     );
+    
+    // Cache the result
+    cache.cacheInertiaTensor(key, tensor);
+    
+    return tensor;
 }
 
 glm::vec3 Box::getBoundingBoxMin() const {
