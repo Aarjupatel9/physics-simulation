@@ -1,6 +1,6 @@
 # Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.16)
-cmake_policy(VERSION 3.16...3.27)
+cmake_minimum_required(VERSION 3.10)
+cmake_policy(VERSION 3.10...3.27)
 
 # Set the project name
 project(PhysicsEngine3D)
@@ -42,7 +42,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/g-truc/glm.git
   GIT_TAG 0.9.9.8
 )
-FetchContent_Populate(glm)
+FetchContent_MakeAvailable(glm)
 
 
 # Find OpenGL

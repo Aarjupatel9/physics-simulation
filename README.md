@@ -33,7 +33,10 @@ macOS: Build & Run
 1) Install Xcode CLT (if not already):
    xcode-select --install
 
-2) Configure and build:
+2) Build using the provided script (recommended):
+   ./build.sh
+
+   Or manually:
    cmake -S . -B build -DCMAKE_POLICY_VERSION_MINIMUM=3.5
    cmake --build build -j
 
@@ -63,11 +66,34 @@ Windows: Build & Run (MSYS2/MinGW, optional)
 3) Run:
    build/PhysicsEngine.exe
 
+Linux: Build & Run
+1) Install dependencies:
+   # Ubuntu/Debian
+   sudo apt update && sudo apt install build-essential cmake git
+   
+   # Fedora/RHEL
+   sudo dnf install gcc-c++ cmake git
+
+2) Build using the provided script:
+   ./build.sh
+
+3) Run:
+   ./build/PhysicsEngine
+
 Clean Build
 - Remove build outputs:
   rm -rf build
   # Windows
   rmdir /S /Q build
+
+Build Script
+The project includes a convenient build script `build.sh` that:
+- Automatically cleans the build directory
+- Configures CMake with the correct policy settings
+- Builds the project with optimal parallel compilation
+- Provides clear feedback during the build process
+
+Usage: `./build.sh`
 
 Troubleshooting
 - Policy error at configure (glad/glm): Ensure you pass -DCMAKE_POLICY_VERSION_MINIMUM=3.5 when running CMake configure.
