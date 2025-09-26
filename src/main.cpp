@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "../scenarios/BaseScenario.h"
 #include "../scenarios/BasicDemoScenario.h"
+#include "../scenarios/TerrainScenario.h"
 
 // Initialize GLFW and OpenGL context
 GLFWwindow* initializeWindow() {
@@ -38,10 +39,11 @@ int selectScenario() {
     std::cout << "\n=== 3D Physics Engine ===" << std::endl;
     std::cout << "Select a scenario to run:" << std::endl;
     std::cout << "1. Basic Demo (Cube + Sphere with gravity)" << std::endl;
-    std::cout << "2. Advanced Demo (Coming soon)" << std::endl;
-    std::cout << "3. Particle System (Coming soon)" << std::endl;
+    std::cout << "2. Beautiful Terrain (Procedural landscape)" << std::endl;
+    std::cout << "3. Advanced Demo (Coming soon)" << std::endl;
+    std::cout << "4. Particle System (Coming soon)" << std::endl;
     std::cout << "0. Exit" << std::endl;
-    std::cout << "Enter your choice (0-3): ";
+    std::cout << "Enter your choice (0-4): ";
     
     int choice;
     std::cin >> choice;
@@ -54,7 +56,9 @@ std::unique_ptr<BaseScenario> createScenario(int choice) {
         case 1:
             return std::make_unique<BasicDemoScenario>();
         case 2:
+            return std::make_unique<TerrainScenario>();
         case 3:
+        case 4:
             std::cout << "This scenario is not implemented yet!" << std::endl;
             return nullptr;
         default:
@@ -111,6 +115,10 @@ int main() {
         
         // Update scenario
         scenario->update(deltaTime);
+        
+        // Clear the frame buffer
+        glClearColor(0.2f, 0.3f, 0.5f, 1.0f); // Dark blue background
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Render scenario
         scenario->render();

@@ -25,6 +25,12 @@ public:
     float getFOV() const { return m_fov; }
     void setFOV(float fov) { m_fov = fov; }
     
+    float getYaw() const { return m_yaw; }
+    void setYaw(float yaw) { m_yaw = yaw; }
+    
+    float getPitch() const { return m_pitch; }
+    void setPitch(float pitch) { m_pitch = pitch; }
+    
     // Movement settings
     void setMoveSpeed(float speed) { m_moveSpeed = speed; }
     void setMouseSensitivity(float sensitivity) { m_mouseSensitivity = sensitivity; }
