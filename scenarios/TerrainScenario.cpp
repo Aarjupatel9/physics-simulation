@@ -1,4 +1,5 @@
 #include "TerrainScenario.h"
+#include "../src/rendering/FPSRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -48,6 +49,16 @@ bool TerrainScenario::initialize(GLFWwindow* window) {
     glfwSetKeyCallback(window, Camera::keyCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
+    // Initialize FPS renderer
+    m_fpsRenderer = std::make_unique<FPSRenderer>();
+    if (!m_fpsRenderer->initialize()) {
+        std::cerr << "Failed to initialize FPS renderer" << std::endl;
+        return false;
+    }
+    
+    // Set initial object count (terrain vertices count as objects for performance tracking)
+    m_objectCount = TERRAIN_SIZE * TERRAIN_SIZE;
+    
     // Enable depth testing (OpenGL calls will be available from main.cpp context)
     // glEnable(GL_DEPTH_TEST);
     // glDepthFunc(GL_LEQUAL);
@@ -63,6 +74,14 @@ bool TerrainScenario::initialize(GLFWwindow* window) {
 void TerrainScenario::update(float deltaTime) {
     // Update camera
     m_camera->update(m_window, deltaTime);
+    
+           // Update FPS renderer with current metrics
+           if (m_fpsRenderer) {
+               // Estimate draw calls and triangles for terrain scenario
+               int drawCalls = 3; // Skybox, terrain, grid
+               int trianglesRendered = TERRAIN_SIZE * TERRAIN_SIZE * 2; // Terrain triangles
+               m_fpsRenderer->update(deltaTime, m_objectCount, m_collisionChecks, drawCalls, trianglesRendered);
+           }
     
     // Debug output removed - movement confirmed working
     
@@ -96,9 +115,34 @@ void TerrainScenario::render() {
     // TODO: Add water rendering here
 }
 
+void TerrainScenario::renderFPS() {
+    if (m_fpsRenderer && m_fpsRenderer->isDisplayEnabled()) {
+        glm::mat4 view = m_camera->getViewMatrix();
+        
+        // Get window dimensions for aspect ratio
+        int width, height;
+        glfwGetWindowSize(m_window, &width, &height);
+        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        glm::mat4 projection = m_camera->getProjectionMatrix(aspectRatio);
+        
+        m_fpsRenderer->render(view, projection);
+    }
+}
+
+void TerrainScenario::toggleFPSDisplay() {
+    if (m_fpsRenderer) {
+        m_fpsRenderer->toggleDisplay();
+    }
+}
+
+bool TerrainScenario::isFPSDisplayEnabled() const {
+    return m_fpsRenderer ? m_fpsRenderer->isDisplayEnabled() : false;
+}
+
 void TerrainScenario::cleanup() {
     m_skybox.reset();
     m_terrain.reset();
     m_gridRenderer.reset();
     m_camera.reset();
+    m_fpsRenderer.reset();
 }

@@ -2,6 +2,7 @@
 #include "../src/utils/MeshGenerator.h"
 #include "../src/shapes/Box.h"
 #include "../src/shapes/Sphere.h"
+#include "../src/rendering/FPSRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -80,6 +81,16 @@ bool BasicDemoScenario::initialize(GLFWwindow* window) {
     glfwSetKeyCallback(window, Camera::keyCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
+    // Initialize FPS renderer
+    m_fpsRenderer = std::make_unique<FPSRenderer>();
+    if (!m_fpsRenderer->initialize()) {
+        std::cerr << "Failed to initialize FPS renderer" << std::endl;
+        return false;
+    }
+    
+    // Set initial object count
+    m_objectCount = static_cast<int>(m_bodies.size());
+    
     return true;
 }
 
@@ -89,6 +100,14 @@ void BasicDemoScenario::update(float deltaTime) {
     
     // Update physics
     m_world->Update(deltaTime);
+    
+           // Update FPS renderer with current metrics
+           if (m_fpsRenderer) {
+               // Estimate draw calls and triangles (3 objects: cube, sphere, ground)
+               int drawCalls = 3; // One draw call per object
+               int trianglesRendered = 12 + 32 + 2; // Cube: 12, Sphere: 32, Ground: 2
+               m_fpsRenderer->update(deltaTime, m_objectCount, m_collisionChecks, drawCalls, trianglesRendered);
+           }
 }
 
 void BasicDemoScenario::render() {
@@ -131,6 +150,30 @@ void BasicDemoScenario::render() {
     m_groundMesh->draw();
 }
 
+void BasicDemoScenario::renderFPS() {
+    if (m_fpsRenderer && m_fpsRenderer->isDisplayEnabled()) {
+        glm::mat4 view = m_camera->getViewMatrix();
+        
+        // Get window dimensions for aspect ratio
+        int width, height;
+        glfwGetWindowSize(m_window, &width, &height);
+        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        glm::mat4 projection = m_camera->getProjectionMatrix(aspectRatio);
+        
+        m_fpsRenderer->render(view, projection);
+    }
+}
+
+void BasicDemoScenario::toggleFPSDisplay() {
+    if (m_fpsRenderer) {
+        m_fpsRenderer->toggleDisplay();
+    }
+}
+
+bool BasicDemoScenario::isFPSDisplayEnabled() const {
+    return m_fpsRenderer ? m_fpsRenderer->isDisplayEnabled() : false;
+}
+
 void BasicDemoScenario::cleanup() {
     // Cleanup is handled by unique_ptr destructors
     m_world.reset();
@@ -140,4 +183,5 @@ void BasicDemoScenario::cleanup() {
     m_cubeMesh.reset();
     m_sphereMesh.reset();
     m_groundMesh.reset();
+    m_fpsRenderer.reset();
 }

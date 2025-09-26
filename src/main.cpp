@@ -98,7 +98,7 @@ int main() {
     std::cout << "\nControls:" << std::endl;
     std::cout << "WASD - Move, I/K - Up/Down, Mouse - Look" << std::endl;
     std::cout << "Shift - Sprint, Scroll/+/- - Zoom" << std::endl;
-    std::cout << "B - Toggle controls, ESC - Exit" << std::endl;
+    std::cout << "B - Toggle controls, F - Toggle FPS display, ESC - Exit" << std::endl;
     
     // Main loop
     float lastFrameTime = 0.0f;
@@ -113,6 +113,15 @@ int main() {
             glfwSetWindowShouldClose(window, true);
         }
         
+        // Handle FPS display toggle
+        static bool fKeyPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !fKeyPressed) {
+            scenario->toggleFPSDisplay();
+            fKeyPressed = true;
+        } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
+            fKeyPressed = false;
+        }
+        
         // Update scenario
         scenario->update(deltaTime);
         
@@ -122,6 +131,9 @@ int main() {
         
         // Render scenario
         scenario->render();
+        
+        // Render FPS display (if enabled)
+        scenario->renderFPS();
         
         // Swap buffers and poll events
         glfwSwapBuffers(window);

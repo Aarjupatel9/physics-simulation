@@ -7,6 +7,9 @@
 #include "../src/rendering/Camera.h"
 #include <memory>
 
+// Forward declaration
+class FPSRenderer;
+
 // Beautiful terrain scenario with skybox, procedural terrain, and environment
 class TerrainScenario : public BaseScenario {
 public:
@@ -17,6 +20,11 @@ public:
     void update(float deltaTime) override;
     void render() override;
     void cleanup() override;
+    
+    // FPS display support
+    void renderFPS() override;
+    void toggleFPSDisplay() override;
+    bool isFPSDisplayEnabled() const override;
     
     const char* getName() const override { return "Beautiful Terrain"; }
     const char* getDescription() const override { return "Procedural terrain with skybox, grass, and rocks"; }
@@ -30,6 +38,9 @@ private:
     
     // Window reference
     GLFWwindow* m_window;
+    
+    // FPS renderer
+    std::unique_ptr<FPSRenderer> m_fpsRenderer;
     
     // Lighting
     glm::vec3 m_sunDirection;

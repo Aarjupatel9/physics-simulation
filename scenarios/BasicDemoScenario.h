@@ -9,6 +9,9 @@
 #include <memory>
 #include <vector>
 
+// Forward declaration
+class FPSRenderer;
+
 // Basic demo scenario: Cube and sphere with gravity and ground collision
 class BasicDemoScenario : public BaseScenario {
 public:
@@ -19,6 +22,11 @@ public:
     void update(float deltaTime) override;
     void render() override;
     void cleanup() override;
+    
+    // FPS display support
+    void renderFPS() override;
+    void toggleFPSDisplay() override;
+    bool isFPSDisplayEnabled() const override;
     
     const char* getName() const override { return "Basic Demo"; }
     const char* getDescription() const override { return "Cube and sphere with gravity and ground collision"; }
@@ -37,6 +45,9 @@ private:
     
     // Window reference for input
     GLFWwindow* m_window;
+    
+    // FPS renderer
+    std::unique_ptr<FPSRenderer> m_fpsRenderer;
     
     // Shader source code
     static const char* s_vertexShaderSource;

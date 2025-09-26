@@ -1,6 +1,10 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <memory>
+
+// Forward declarations
+class FPSRenderer;
 
 // Abstract base class for all physics scenarios
 class BaseScenario {
@@ -25,4 +29,14 @@ public:
     
     // Get scenario description
     virtual const char* getDescription() const = 0;
+    
+    // FPS rendering support
+    virtual void renderFPS() {}
+    virtual void toggleFPSDisplay() {}
+    virtual bool isFPSDisplayEnabled() const { return false; }
+    
+protected:
+    // Performance tracking
+    int m_objectCount = 0;
+    int m_collisionChecks = 0;
 };
