@@ -40,10 +40,11 @@ int selectScenario() {
     std::cout << "Select a scenario to run:" << std::endl;
     std::cout << "1. Basic Demo (Cube + Sphere with gravity)" << std::endl;
     std::cout << "2. Beautiful Terrain (Procedural landscape)" << std::endl;
-    std::cout << "3. Advanced Demo (Coming soon)" << std::endl;
-    std::cout << "4. Particle System (Coming soon)" << std::endl;
+    std::cout << "3. Mesh Intensive Demo (Performance stress test)" << std::endl;
+    std::cout << "4. Advanced Demo (Coming soon)" << std::endl;
+    std::cout << "5. Particle System (Coming soon)" << std::endl;
     std::cout << "0. Exit" << std::endl;
-    std::cout << "Enter your choice (0-4): ";
+    std::cout << "Enter your choice (0-5): ";
     
     int choice;
     std::cin >> choice;
@@ -58,7 +59,14 @@ std::unique_ptr<BaseScenario> createScenario(int choice) {
         case 2:
             return std::make_unique<TerrainScenario>();
         case 3:
+            std::cout << "Mesh Intensive Demo - Creating extended BasicDemo with more objects..." << std::endl;
+            {
+                auto scenario = std::make_unique<BasicDemoScenario>();
+                scenario->setPerformanceTestMode(true);
+                return scenario;
+            }
         case 4:
+        case 5:
             std::cout << "This scenario is not implemented yet!" << std::endl;
             return nullptr;
         default:

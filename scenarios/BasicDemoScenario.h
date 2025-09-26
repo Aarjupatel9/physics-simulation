@@ -30,6 +30,9 @@ public:
     
     const char* getName() const override { return "Basic Demo"; }
     const char* getDescription() const override { return "Cube and sphere with gravity and ground collision"; }
+    
+    // Performance testing
+    void setPerformanceTestMode(bool enabled) { m_performanceTestMode = enabled; }
 
 private:
     // Physics
@@ -49,7 +52,13 @@ private:
     // FPS renderer
     std::unique_ptr<FPSRenderer> m_fpsRenderer;
     
+    // Performance testing mode
+    bool m_performanceTestMode = false;
+    
     // Shader source code
     static const char* s_vertexShaderSource;
     static const char* s_fragmentShaderSource;
+    
+    // Performance testing
+    void createPerformanceTestObjects();
 };

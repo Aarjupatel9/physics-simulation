@@ -65,6 +65,17 @@ bool BasicDemoScenario::initialize(GLFWwindow* window) {
     // Initialize camera
     m_camera = std::make_unique<Camera>();
     
+    // Adjust camera position for better viewing
+    if (m_performanceTestMode) {
+        m_camera->setPosition(glm::vec3(0.0f, 15.0f, 25.0f)); // Higher and further back for performance test
+        m_camera->setYaw(-90.0f); // Look towards center
+        m_camera->setPitch(-20.0f); // Look down slightly
+    } else {
+        m_camera->setPosition(glm::vec3(0.0f, 8.0f, 12.0f)); // Better distance for basic demo
+        m_camera->setYaw(-90.0f); // Look towards center
+        m_camera->setPitch(-15.0f); // Look down to see ground
+    }
+    
     // Generate meshes
     m_cubeMesh = std::make_unique<Mesh>();
     m_cubeMesh->loadVertices(MeshGenerator::generateCube());
@@ -90,6 +101,11 @@ bool BasicDemoScenario::initialize(GLFWwindow* window) {
     
     // Set initial object count
     m_objectCount = static_cast<int>(m_bodies.size());
+    
+    // Add more objects for performance testing only if in performance test mode
+    if (m_performanceTestMode) {
+        createPerformanceTestObjects();
+    }
     
     return true;
 }
@@ -125,25 +141,38 @@ void BasicDemoScenario::render() {
     m_shader->setUniform("view", view);
     m_shader->setUniform("proj", proj);
     
-    // Render cube
-    glm::mat4 cubeModel = glm::mat4(1.0f);
-    cubeModel = glm::translate(cubeModel, m_bodies[0]->getPosition());
-    cubeModel = cubeModel * glm::mat4_cast(m_bodies[0]->getRotation());
+    // Render all objects
+    for (size_t i = 0; i < m_bodies.size(); ++i) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, m_bodies[i]->getPosition());
+        model = model * glm::mat4_cast(m_bodies[i]->getRotation());
+        
+        m_shader->setUniform("model", model);
+        
+        // Determine object type and color
+        if (i == 0) {
+            // Original cube
+            m_shader->setUniform("uColor", glm::vec3(0.2f, 0.8f, 1.0f)); // Cyan
+            m_cubeMesh->draw();
+        } else if (i == 1) {
+            // Original sphere
+            m_shader->setUniform("uColor", glm::vec3(1.0f, 0.4f, 0.3f)); // Orange-red
+            m_sphereMesh->draw();
+        } else {
+            // Performance test objects
+            // Alternate between cubes and spheres with different colors
+            bool isSphere = (i - 2) % 2 == 0; // -2 to account for original cube and sphere
+            if (isSphere) {
+                m_shader->setUniform("uColor", glm::vec3(0.8f, 0.2f, 0.8f)); // Magenta
+                m_sphereMesh->draw();
+            } else {
+                m_shader->setUniform("uColor", glm::vec3(0.2f, 0.8f, 0.2f)); // Green
+                m_cubeMesh->draw();
+            }
+        }
+    }
     
-    m_shader->setUniform("model", cubeModel);
-    m_shader->setUniform("uColor", glm::vec3(0.2f, 0.8f, 1.0f)); // Cyan
-    m_cubeMesh->draw();
-    
-    // Render sphere
-    glm::mat4 sphereModel = glm::mat4(1.0f);
-    sphereModel = glm::translate(sphereModel, m_bodies[1]->getPosition());
-    sphereModel = sphereModel * glm::mat4_cast(m_bodies[1]->getRotation());
-    
-    m_shader->setUniform("model", sphereModel);
-    m_shader->setUniform("uColor", glm::vec3(1.0f, 0.4f, 0.3f)); // Orange-red
-    m_sphereMesh->draw();
-    
-    // Render ground
+    // Render ground (always visible)
     glm::mat4 groundModel = glm::mat4(1.0f);
     m_shader->setUniform("model", groundModel);
     m_shader->setUniform("uColor", glm::vec3(0.5f, 0.5f, 0.5f)); // Grey
@@ -172,6 +201,41 @@ void BasicDemoScenario::toggleFPSDisplay() {
 
 bool BasicDemoScenario::isFPSDisplayEnabled() const {
     return m_fpsRenderer ? m_fpsRenderer->isDisplayEnabled() : false;
+}
+
+void BasicDemoScenario::createPerformanceTestObjects() {
+    std::cout << "Creating performance test objects..." << std::endl;
+    
+    // Create a grid of objects for performance testing
+    const int GRID_SIZE = 15; // 15x15 = 225 objects
+    const float SPACING = 2.0f;
+    
+    for (int x = 0; x < GRID_SIZE; ++x) {
+        for (int z = 0; z < GRID_SIZE; ++z) {
+            float xPos = (x - GRID_SIZE/2.0f) * SPACING;
+            float zPos = (z - GRID_SIZE/2.0f) * SPACING;
+            float yPos = 5.0f + (x + z) * 0.1f; // Slight height variation
+            
+            // Alternate between cubes and spheres
+            bool isSphere = (x + z) % 2 == 0;
+            
+            std::unique_ptr<RigidBody3D> body;
+            if (isSphere) {
+                body = std::make_unique<RigidBody3D>(std::make_unique<Sphere>(0.3f), 1.0f);
+            } else {
+                body = std::make_unique<RigidBody3D>(std::make_unique<Box>(0.4f, 0.4f, 0.4f), 1.0f);
+            }
+            body->setPosition(glm::vec3(xPos, yPos, zPos));
+            
+            m_world->AddBody(body.get());
+            m_bodies.push_back(std::move(body));
+        }
+    }
+    
+    // Update object count
+    m_objectCount = static_cast<int>(m_bodies.size());
+    
+    std::cout << "Performance test objects created: " << m_objectCount << " total objects" << std::endl;
 }
 
 void BasicDemoScenario::cleanup() {
