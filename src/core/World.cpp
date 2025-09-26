@@ -1,4 +1,5 @@
 #include "World.h"
+#include "PhysicsConstants.h"
 
 // Initialize world with a constant gravity vector
 World::World(const glm::vec3& gravity) : gravity(gravity) {}
@@ -12,12 +13,17 @@ void World::AddBody(RigidBody3D* body) {
 void World::Update(float dt) {
     for (RigidBody3D* body : bodies) {
         if (!body) continue;
-        if (body->inverseMass == 0.0f) {
+        if (body->isStatic()) {
             continue;
         }
-        glm::vec3 gravityForce = gravity * (1.0f / body->inverseMass);
-        body->AddForce(gravityForce);
-        body->Integrate(dt);
+        
+        // Apply gravity if enabled
+        if (body->isGravityEnabled()) {
+            glm::vec3 gravityForce = gravity * body->getMass();
+            body->addForce(gravityForce);
+        }
+        
+        body->integrate(dt);
     }
     
     // Check for collisions after physics integration
@@ -29,8 +35,8 @@ void World::CheckCollisions() {
         if (!body) continue;
         
         // Check ground collision
-        if (body->CheckGroundCollision(groundLevel)) {
-            body->ResolveGroundCollision(groundLevel);
+        if (body->checkGroundCollision(groundLevel)) {
+            body->resolveGroundCollision(groundLevel);
         }
     }
 }

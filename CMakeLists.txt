@@ -1,6 +1,6 @@
 # Set the minimum required version of CMake
-cmake_minimum_required(VERSION 3.10)
-cmake_policy(VERSION 3.5...3.27)
+cmake_minimum_required(VERSION 3.16)
+cmake_policy(VERSION 3.16...3.27)
 
 # Set the project name
 project(PhysicsEngine3D)

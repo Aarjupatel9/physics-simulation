@@ -24,7 +24,7 @@ void CollisionSystem::ResolveCollision(const CollisionInfo& collision, float res
     if (!bodyA || !bodyB) return;
     
     // Relative velocity
-    glm::vec3 relativeVelocity = bodyB->velocity - bodyA->velocity;
+    glm::vec3 relativeVelocity = bodyB->getLinearVelocity() - bodyA->getLinearVelocity();
     float velocityAlongNormal = glm::dot(relativeVelocity, collision.contactNormal);
     
     // Don't resolve if velocities are separating
@@ -35,21 +35,21 @@ void CollisionSystem::ResolveCollision(const CollisionInfo& collision, float res
     
     // Calculate impulse scalar
     float impulseScalar = -(1 + newRestitution) * velocityAlongNormal;
-    impulseScalar /= bodyA->inverseMass + bodyB->inverseMass;
+    impulseScalar /= bodyA->getInverseMass() + bodyB->getInverseMass();
     
     glm::vec3 impulse = impulseScalar * collision.contactNormal;
     
     // Apply impulse
-    bodyA->velocity -= impulse * bodyA->inverseMass;
-    bodyB->velocity += impulse * bodyB->inverseMass;
+    bodyA->setLinearVelocity(bodyA->getLinearVelocity() - impulse * bodyA->getInverseMass());
+    bodyB->setLinearVelocity(bodyB->getLinearVelocity() + impulse * bodyB->getInverseMass());
     
     // Position correction
     const float percent = 0.2f; // How much to correct
     const float slop = 0.01f;   // How much overlap to ignore
     
-    glm::vec3 correction = collision.contactNormal * (percent * glm::max(collision.penetration - slop, 0.0f) / (bodyA->inverseMass + bodyB->inverseMass));
-    bodyA->position -= correction * bodyA->inverseMass;
-    bodyB->position += correction * bodyB->inverseMass;
+    glm::vec3 correction = collision.contactNormal * (percent * glm::max(collision.penetration - slop, 0.0f) / (bodyA->getInverseMass() + bodyB->getInverseMass()));
+    bodyA->setPosition(bodyA->getPosition() - correction * bodyA->getInverseMass());
+    bodyB->setPosition(bodyB->getPosition() + correction * bodyB->getInverseMass());
 }
 
 void CollisionSystem::CheckGroundCollisions(const std::vector<RigidBody3D*>& bodies, float groundY) {
@@ -64,7 +64,7 @@ void CollisionSystem::CheckGroundCollisions(const std::vector<RigidBody3D*>& bod
 }
 
 bool CollisionSystem::CheckSphereSphere(RigidBody3D* bodyA, RigidBody3D* bodyB, CollisionInfo& info) {
-    glm::vec3 distance = bodyB->position - bodyA->position;
+    glm::vec3 distance = bodyB->getPosition() - bodyA->getPosition();
     float distanceLength = glm::length(distance);
     
     // Assuming radius of 0.5 for both spheres
@@ -76,7 +76,7 @@ bool CollisionSystem::CheckSphereSphere(RigidBody3D* bodyA, RigidBody3D* bodyB, 
         info.bodyA = bodyA;
         info.bodyB = bodyB;
         info.contactNormal = glm::normalize(distance);
-        info.contactPoint = bodyA->position + info.contactNormal * radiusA;
+        info.contactPoint = bodyA->getPosition() + info.contactNormal * radiusA;
         info.penetration = minDistance - distanceLength;
         return true;
     }
@@ -86,12 +86,12 @@ bool CollisionSystem::CheckSphereSphere(RigidBody3D* bodyA, RigidBody3D* bodyB, 
 
 bool CollisionSystem::CheckGroundCollision(RigidBody3D* body, float groundY, CollisionInfo& info) {
     float radius = 0.5f;
-    if (body->position.y - radius <= groundY) {
+    if (body->getPosition().y - radius <= groundY) {
         info.bodyA = body;
         info.bodyB = nullptr; // Ground is static
         info.contactNormal = glm::vec3(0.0f, 1.0f, 0.0f);
-        info.contactPoint = glm::vec3(body->position.x, groundY, body->position.z);
-        info.penetration = groundY - (body->position.y - radius);
+        info.contactPoint = glm::vec3(body->getPosition().x, groundY, body->getPosition().z);
+        info.penetration = groundY - (body->getPosition().y - radius);
         return true;
     }
     return false;

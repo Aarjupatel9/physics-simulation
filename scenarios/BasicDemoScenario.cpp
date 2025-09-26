@@ -1,5 +1,7 @@
 #include "BasicDemoScenario.h"
 #include "../src/utils/MeshGenerator.h"
+#include "../src/shapes/Box.h"
+#include "../src/shapes/Sphere.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
@@ -35,9 +37,16 @@ bool BasicDemoScenario::initialize(GLFWwindow* window) {
     // Initialize physics world
     m_world = std::make_unique<World>(glm::vec3(0.0f, -9.8f, 0.0f));
     
-    // Create physics bodies
-    auto cubeBody = std::make_unique<RigidBody3D>(glm::vec3(-1.0f, 2.0f, 0.0f), 10.0f);
-    auto sphereBody = std::make_unique<RigidBody3D>(glm::vec3(1.0f, 3.0f, 0.0f), 5.0f);
+    // Create physics bodies with shapes
+    auto cubeShape = std::make_unique<Box>(1.0f, 1.0f, 1.0f); // 1m x 1m x 1m cube
+    auto sphereShape = std::make_unique<Sphere>(0.5f, 32); // 0.5m radius sphere
+    
+    auto cubeBody = std::make_unique<RigidBody3D>(std::move(cubeShape), 10.0f);
+    auto sphereBody = std::make_unique<RigidBody3D>(std::move(sphereShape), 5.0f);
+    
+    // Set initial positions
+    cubeBody->setPosition(glm::vec3(-1.0f, 2.0f, 0.0f));
+    sphereBody->setPosition(glm::vec3(1.0f, 3.0f, 0.0f));
     
     m_world->AddBody(cubeBody.get());
     m_world->AddBody(sphereBody.get());
@@ -99,8 +108,8 @@ void BasicDemoScenario::render() {
     
     // Render cube
     glm::mat4 cubeModel = glm::mat4(1.0f);
-    cubeModel = glm::translate(cubeModel, m_bodies[0]->position);
-    cubeModel = cubeModel * glm::mat4_cast(m_bodies[0]->orientation);
+    cubeModel = glm::translate(cubeModel, m_bodies[0]->getPosition());
+    cubeModel = cubeModel * glm::mat4_cast(m_bodies[0]->getRotation());
     
     m_shader->setUniform("model", cubeModel);
     m_shader->setUniform("uColor", glm::vec3(0.2f, 0.8f, 1.0f)); // Cyan
@@ -108,8 +117,8 @@ void BasicDemoScenario::render() {
     
     // Render sphere
     glm::mat4 sphereModel = glm::mat4(1.0f);
-    sphereModel = glm::translate(sphereModel, m_bodies[1]->position);
-    sphereModel = sphereModel * glm::mat4_cast(m_bodies[1]->orientation);
+    sphereModel = glm::translate(sphereModel, m_bodies[1]->getPosition());
+    sphereModel = sphereModel * glm::mat4_cast(m_bodies[1]->getRotation());
     
     m_shader->setUniform("model", sphereModel);
     m_shader->setUniform("uColor", glm::vec3(1.0f, 0.4f, 0.3f)); // Orange-red
