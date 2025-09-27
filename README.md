@@ -30,8 +30,19 @@ The build system automatically fetches all required libraries. You only need:
 - **Git** (for dependency fetching)
 - **C++ Compiler** with C++17 support:
   - **macOS**: Xcode Command Line Tools (clang)
-  - **Windows**: Visual Studio 2022 (MSVC) or MSYS2/MinGW
+  - **Windows**: LLVM/Clang 19.0.0+ (Recommended) or Visual Studio 2022 (MSVC) or MSYS2/MinGW
   - **Linux**: GCC 7+ or Clang 5+
+
+### Windows-Specific Requirements
+For Windows, we recommend **LLVM/Clang 19.0.0+** for the best C++17 support:
+
+```cmd
+# Install LLVM/Clang via winget (Recommended)
+winget install LLVM.LLVM
+
+# Or install Visual Studio 2022 with C++ development tools
+# Or install MSYS2 with MinGW toolchain
+```
 
 ## Quick Start
 

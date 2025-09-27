@@ -23,6 +23,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "C
         # Suppress OpenGL deprecation warnings on macOS
         add_compile_definitions(GL_SILENCE_DEPRECATION)
     endif()
+    # Define M_PI for MinGW compatibility
+    add_compile_definitions(_USE_MATH_DEFINES)
 endif()
 
 # Set output directories
