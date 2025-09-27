@@ -127,13 +127,22 @@ void FPSRenderer::updateMetrics(float deltaTime, int objectCount, int collisionC
     m_mainLoopFrameCount += 1.0f;
     m_mainLoopTimeAccumulator += deltaTime;
     
-    // Update displayed FPS every second
+    // Update displayed FPS every second with stable calculation
     m_fpsUpdateTimer += deltaTime;
     if (m_fpsUpdateTimer >= m_fpsUpdateInterval) {
         // Calculate main loop FPS (same as console)
         if (m_mainLoopTimeAccumulator > 0.0f) {
             m_mainLoopFPS = m_mainLoopFrameCount / m_mainLoopTimeAccumulator;
-            m_displayedFPS = std::round(m_mainLoopFPS); // Round to nearest integer
+            
+            // Use rolling average for more stable FPS display
+            if (m_displayedFPS == 0.0f) {
+                // First time, use direct value
+                m_displayedFPS = std::round(m_mainLoopFPS);
+            } else {
+                // Smooth the FPS value to reduce jitter (70% old, 30% new)
+                float smoothedFPS = m_displayedFPS * 0.7f + m_mainLoopFPS * 0.3f;
+                m_displayedFPS = std::round(smoothedFPS);
+            }
         }
         
         // Reset counters

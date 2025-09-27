@@ -326,6 +326,23 @@ void BaseScene::update(float deltaTime) {
         m_camera->update(m_window, deltaTime);
     }
     
+    // Update FPS renderer with current metrics
+    if (m_fpsRenderer) {
+        // Calculate object count from physics bodies
+        int objectCount = static_cast<int>(m_objects.size());
+        
+        // Estimate collision checks (simple approximation)
+        int collisionChecks = objectCount * objectCount / 2; // N*(N-1)/2 for all pairs
+        
+        // Estimate draw calls (objects + 1 for each mesh type used)
+        int drawCalls = static_cast<int>(m_objects.size());
+        
+        // Estimate triangles (rough approximation)
+        int trianglesRendered = objectCount * 12; // Assuming ~12 triangles per object on average
+        
+        m_fpsRenderer->update(deltaTime, objectCount, collisionChecks, drawCalls, trianglesRendered);
+    }
+    
     // Update scene-specific logic
     updateScene(deltaTime);
 }
