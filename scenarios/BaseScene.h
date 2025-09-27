@@ -80,7 +80,8 @@ protected:
                       float radius,
                       glm::vec3 color = glm::vec3(0.5f),
                       bool enablePhysics = false,
-                      float mass = 1.0f);
+                      float mass = 1.0f,
+                      glm::vec3 initialVelocity = glm::vec3(0.0f));
                       
     void createPlane(glm::vec3 position, 
                      glm::vec2 size,

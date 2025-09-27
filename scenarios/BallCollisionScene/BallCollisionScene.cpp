@@ -52,8 +52,9 @@ void BallCollisionScene::initializeObjects() {
     // Create balls - just one line each!
     for (int i = 0; i < NUM_BALLS; i++) {
         glm::vec3 position = getRandomPosition();
-        glm::vec3 color = glm::vec3(0.2f, 0.8f, 0.2f); // Default green
-        createSphere(position, BALL_RADIUS, color, true, 1.0f); // Physics enabled
+        glm::vec3 velocity = getRandomVelocity();
+        glm::vec3 color = glm::vec3(0.2f, 0.8f, 0.2f); // Green balls
+        createSphere(position, BALL_RADIUS, color, true, 1.0f, velocity); // Physics enabled with velocity
     }
     
     std::cout << "Created " << NUM_BALLS << " balls, 1 floor, and 4 walls" << std::endl;

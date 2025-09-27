@@ -177,7 +177,8 @@ void BaseScene::createSphere(glm::vec3 position,
                             float radius,
                             glm::vec3 color,
                             bool enablePhysics,
-                            float mass) {
+                            float mass,
+                            glm::vec3 initialVelocity) {
     // Create physics body
     auto physicsBody = std::make_unique<RigidBody3D>(
         std::make_unique<Sphere>(radius),
@@ -186,7 +187,7 @@ void BaseScene::createSphere(glm::vec3 position,
     
     physicsBody->setPosition(position);
     physicsBody->setStatic(!enablePhysics);
-    
+        
     // Store object info
     ObjectInfo objInfo;
     objInfo.physicsBody = std::move(physicsBody);
@@ -211,11 +212,15 @@ void BaseScene::createPlane(glm::vec3 position,
                            glm::vec3 rotation,
                            glm::vec3 color,
                            bool enablePhysics) {
-    // Create physics body
+    // Create physics body with correct dimensions
     auto physicsBody = std::make_unique<RigidBody3D>(
-        std::make_unique<Plane>(),
+        std::make_unique<Plane>(size.x, size.y),
         enablePhysics ? 0.0f : 0.0f  // Planes are always static for now
     );
+    
+    std::cout << "Created plane at (" << position.x << ", " << position.y << ", " << position.z 
+              << ") with size (" << size.x << " x " << size.y << ")"
+              << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
     
     physicsBody->setPosition(position);
     if (rotation != glm::vec3(0.0f)) {
@@ -266,11 +271,14 @@ void BaseScene::renderObject(const RigidBody3D& body, glm::vec3 color) {
         meshToRender = m_boxMesh;
     } else if (const Sphere* sphere = dynamic_cast<const Sphere*>(shape)) {
         float radius = sphere->getRadius();
-        model = glm::scale(model, glm::vec3(radius * 2.0f));
+        // Base mesh is 1-unit radius, so scale directly by radius
+        model = glm::scale(model, glm::vec3(radius));
         meshToRender = m_sphereMesh;
     } else if (const Plane* plane = dynamic_cast<const Plane*>(shape)) {
-        // For planes, use a reasonable scale
-        model = glm::scale(model, glm::vec3(5.0f, 1.0f, 5.0f)); // 5x5 plane
+        // Scale the plane mesh to match the actual plane size
+        // Base mesh is now 1x1, so scale directly by dimensions
+        glm::vec2 dimensions = plane->getDimensions();
+        model = glm::scale(model, glm::vec3(dimensions.x, 1.0f, dimensions.y));
         meshToRender = m_planeMesh;
     } else {
         std::cout << "Warning: Unknown shape type: " << typeid(*shape).name() << std::endl;
