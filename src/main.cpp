@@ -3,8 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "../scenarios/BaseScene.h"
-#include "../scenarios/BasicDemoScenario.h"
-#include "../scenarios/TerrainScenario.h"
+#include "../scenarios/BasicDemoScene/BasicDemoScene.h"
+#include "../scenarios/TerrainScene/TerrainScene.h"
 #include "../scenarios/BallCollisionScene/BallCollisionScene.h"
 
 // Initialize GLFW and OpenGL context
@@ -56,6 +56,16 @@ int selectScenario() {
 // Create scene based on user choice
 std::unique_ptr<BaseScene> createScene(int choice) {
     switch (choice) {
+        case 1:
+            return std::make_unique<BasicDemoScene>();
+        case 2:
+            return std::make_unique<TerrainScene>();
+        case 3:
+            {
+                auto scene = std::make_unique<BasicDemoScene>();
+                scene->setPerformanceTestMode(true);
+                return scene;
+            }
         case 4:
             return std::make_unique<BallCollisionScene>();
         case 5:
@@ -63,7 +73,7 @@ std::unique_ptr<BaseScene> createScene(int choice) {
             std::cout << "This scene is not implemented yet!" << std::endl;
             return nullptr;
         default:
-            std::cout << "This scene uses the old architecture. Please select option 4 for the new Ball Collision Scene." << std::endl;
+            std::cout << "Invalid choice! Please select 1-6." << std::endl;
             return nullptr;
     }
 }
