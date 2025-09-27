@@ -43,9 +43,9 @@ void MeshCache::preloadCommonMeshes() {
     // Preload sphere mesh
     if (m_cache.find(SPHERE_KEY) == m_cache.end()) {
         auto sphereMesh = std::make_shared<Mesh>();
-        sphereMesh->loadVertices(MeshGenerator::generateSphere(32, 16, 0.5f));
+        sphereMesh->loadVertices(MeshGenerator::generateSphere(32, 16, 1.0f));
         m_cache[SPHERE_KEY] = sphereMesh;
-        std::cout << "Cached sphere mesh (0.5f radius)" << std::endl;
+        std::cout << "Cached sphere mesh (1.0f radius)" << std::endl;
     }
     
     // Preload ground plane mesh

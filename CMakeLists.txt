@@ -3,11 +3,32 @@ cmake_minimum_required(VERSION 3.10)
 cmake_policy(VERSION 3.10...3.27)
 
 # Set the project name
-project(PhysicsEngine3D)
+project(PhysicsEngine3D VERSION 1.0.0 LANGUAGES CXX)
 
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Cross-platform compiler settings
+if(MSVC)
+    # Visual Studio specific settings
+    add_compile_options(/W4)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+    # Suppress OpenGL deprecation warnings on Windows
+    add_compile_definitions(GL_SILENCE_DEPRECATION)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # GCC/Clang specific settings
+    add_compile_options(-Wall -Wextra -Wpedantic)
+    if(APPLE)
+        # Suppress OpenGL deprecation warnings on macOS
+        add_compile_definitions(GL_SILENCE_DEPRECATION)
+    endif()
+endif()
+
+# Set output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release)
 
 # --- Library Integration using FetchContent ---
 # This automatically downloads and configures the libraries we need.

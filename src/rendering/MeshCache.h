@@ -33,8 +33,8 @@ public:
     
     // Predefined mesh keys
     static constexpr const char* CUBE_KEY = "cube_1.0";
-    static constexpr const char* SPHERE_KEY = "sphere_0.5_32_16";
-    static constexpr const char* GROUND_PLANE_KEY = "ground_plane";
+    static constexpr const char* SPHERE_KEY = "sphere_1.0_32_16";
+    static constexpr const char* GROUND_PLANE_KEY = "ground_plane_1x1";
     static constexpr const char* SPHERE_SMALL_KEY = "sphere_0.3_32_16";
     static constexpr const char* CUBE_SMALL_KEY = "cube_0.4";
 

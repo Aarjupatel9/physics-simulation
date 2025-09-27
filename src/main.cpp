@@ -2,9 +2,10 @@
 #include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../scenarios/BaseScenario.h"
-#include "../scenarios/BasicDemoScenario.h"
-#include "../scenarios/TerrainScenario.h"
+#include "../scenarios/BaseScene.h"
+#include "../scenarios/BasicDemoScene/BasicDemoScene.h"
+#include "../scenarios/TerrainScene/TerrainScene.h"
+#include "../scenarios/BallCollisionScene/BallCollisionScene.h"
 
 // Initialize GLFW and OpenGL context
 GLFWwindow* initializeWindow() {
@@ -37,39 +38,42 @@ GLFWwindow* initializeWindow() {
 // Display scenario selection menu
 int selectScenario() {
     std::cout << "\n=== 3D Physics Engine ===" << std::endl;
-    std::cout << "Select a scenario to run:" << std::endl;
+    std::cout << "Select a scene to run:" << std::endl;
     std::cout << "1. Basic Demo (Cube + Sphere with gravity)" << std::endl;
     std::cout << "2. Beautiful Terrain (Procedural landscape)" << std::endl;
     std::cout << "3. Mesh Intensive Demo (Performance stress test)" << std::endl;
-    std::cout << "4. Advanced Demo (Coming soon)" << std::endl;
-    std::cout << "5. Particle System (Coming soon)" << std::endl;
+    std::cout << "4. Ball Collision Scene (Multiple balls on bounded plane)" << std::endl;
+    std::cout << "5. Advanced Demo (Coming soon)" << std::endl;
+    std::cout << "6. Particle System (Coming soon)" << std::endl;
     std::cout << "0. Exit" << std::endl;
-    std::cout << "Enter your choice (0-5): ";
+    std::cout << "Enter your choice (0-6): ";
     
     int choice;
     std::cin >> choice;
     return choice;
 }
 
-// Create scenario based on user choice
-std::unique_ptr<BaseScenario> createScenario(int choice) {
+// Create scene based on user choice
+std::unique_ptr<BaseScene> createScene(int choice) {
     switch (choice) {
         case 1:
-            return std::make_unique<BasicDemoScenario>();
+            return std::make_unique<BasicDemoScene>();
         case 2:
-            return std::make_unique<TerrainScenario>();
+            return std::make_unique<TerrainScene>();
         case 3:
-            std::cout << "Mesh Intensive Demo - Creating extended BasicDemo with more objects..." << std::endl;
             {
-                auto scenario = std::make_unique<BasicDemoScenario>();
-                scenario->setPerformanceTestMode(true);
-                return scenario;
+                auto scene = std::make_unique<BasicDemoScene>();
+                scene->setPerformanceTestMode(true);
+                return scene;
             }
         case 4:
+            return std::make_unique<BallCollisionScene>();
         case 5:
-            std::cout << "This scenario is not implemented yet!" << std::endl;
+        case 6:
+            std::cout << "This scene is not implemented yet!" << std::endl;
             return nullptr;
         default:
+            std::cout << "Invalid choice! Please select 1-6." << std::endl;
             return nullptr;
     }
 }
@@ -81,28 +85,28 @@ int main() {
         return -1;
     }
     
-    // Select scenario
+    // Select scene
     int choice = selectScenario();
     if (choice == 0) {
         glfwTerminate();
         return 0;
     }
     
-    // Create and initialize scenario
-    auto scenario = createScenario(choice);
-    if (!scenario) {
+    // Create and initialize scene
+    auto scene = createScene(choice);
+    if (!scene) {
         glfwTerminate();
         return -1;
     }
     
-    if (!scenario->initialize(window)) {
-        std::cerr << "Failed to initialize scenario: " << scenario->getName() << std::endl;
+    if (!scene->initialize(window)) {
+        std::cerr << "Failed to initialize scene: " << scene->getName() << std::endl;
         glfwTerminate();
         return -1;
     }
     
-    std::cout << "\nRunning scenario: " << scenario->getName() << std::endl;
-    std::cout << "Description: " << scenario->getDescription() << std::endl;
+    std::cout << "\nRunning scene: " << scene->getName() << std::endl;
+    std::cout << "Description: " << scene->getDescription() << std::endl;
     std::cout << "\nControls:" << std::endl;
     std::cout << "WASD - Move, I/K - Up/Down, Mouse - Look" << std::endl;
     std::cout << "Shift - Sprint, Scroll/+/- - Zoom" << std::endl;
@@ -124,24 +128,17 @@ int main() {
         // Handle FPS display toggle
         static bool fKeyPressed = false;
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !fKeyPressed) {
-            scenario->toggleFPSDisplay();
+            scene->toggleFPSDisplay();
             fKeyPressed = true;
         } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
             fKeyPressed = false;
         }
         
-        // Update scenario
-        scenario->update(deltaTime);
+        // Update scene
+        scene->update(deltaTime);
         
-        // Clear the frame buffer
-        glClearColor(0.2f, 0.3f, 0.5f, 1.0f); // Dark blue background
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        // Render scenario
-        scenario->render();
-        
-        // Render FPS display (if enabled)
-        scenario->renderFPS();
+        // Render scene
+        scene->render();
         
         // Swap buffers and poll events
         glfwSwapBuffers(window);
@@ -149,7 +146,7 @@ int main() {
     }
     
     // Cleanup
-    scenario->cleanup();
+    scene->cleanup();
     glfwTerminate();
     
     std::cout << "Physics engine shutdown complete." << std::endl;

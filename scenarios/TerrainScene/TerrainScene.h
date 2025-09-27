@@ -1,30 +1,33 @@
 #pragma once
 
-#include "BaseScenario.h"
-#include "../src/rendering/Skybox.h"
-#include "../src/rendering/Terrain.h"
-#include "../src/rendering/GridRenderer.h"
-#include "../src/rendering/Camera.h"
-#include <memory>
+#include "../BaseScene.h"
+#include "../../src/rendering/Skybox.h"
+#include "../../src/rendering/Terrain.h"
+#include "../../src/rendering/GridRenderer.h"
 
-// Forward declaration
-class FPSRenderer;
-
-// Beautiful terrain scenario with skybox, procedural terrain, and environment
-class TerrainScenario : public BaseScenario {
+/**
+ * TerrainScene - Beautiful terrain with skybox and environment
+ * 
+ * Features:
+ * - Procedural terrain generation
+ * - Skybox rendering
+ * - Grid overlay for navigation
+ * - Environmental lighting
+ */
+class TerrainScene : public BaseScene {
 public:
-    TerrainScenario();
-    ~TerrainScenario();
+    TerrainScene();
+    virtual ~TerrainScene() = default;
     
+    // BaseScene interface
     bool initialize(GLFWwindow* window) override;
     void update(float deltaTime) override;
     void render() override;
     void cleanup() override;
     
-    // FPS display support
-    void renderFPS() override;
-    void toggleFPSDisplay() override;
-    bool isFPSDisplayEnabled() const override;
+    // Scene-specific methods
+    void updateScene(float deltaTime) override;
+    void renderScene() override;
     
     const char* getName() const override { return "Beautiful Terrain"; }
     const char* getDescription() const override { return "Procedural terrain with skybox, grass, and rocks"; }
@@ -34,13 +37,6 @@ private:
     std::unique_ptr<Skybox> m_skybox;
     std::unique_ptr<Terrain> m_terrain;
     std::unique_ptr<GridRenderer> m_gridRenderer;
-    std::unique_ptr<Camera> m_camera;
-    
-    // Window reference
-    GLFWwindow* m_window;
-    
-    // FPS renderer
-    std::unique_ptr<FPSRenderer> m_fpsRenderer;
     
     // Lighting
     glm::vec3 m_sunDirection;
@@ -50,4 +46,11 @@ private:
     static constexpr float TERRAIN_SCALE = 1.0f;  // 32 * 1.0 = 32 units total (bigger)
     static constexpr float TERRAIN_HEIGHT = 0.0f;  // Flat terrain
     static constexpr float TERRAIN_ROUGHNESS = 0.0f;  // No variation
+    
+    // Scene initialization
+    void initializeCamera();
+    void initializeObjects() override;
+    void initializeTerrain();
+    void initializeSkybox();
+    void initializeGrid();
 };
