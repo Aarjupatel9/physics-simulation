@@ -11,26 +11,50 @@ echo.
 
 REM Detect build environment
 set BUILD_ENV=unknown
+
+REM Check for Clang first (best C++17 support)
+REM Note: Requires LLVM/Clang 19.0.0+ for Windows compatibility
+where clang++ >nul 2>&1
+if %errorlevel% equ 0 (
+    set BUILD_ENV=clang
+    echo [INFO] Detected Clang environment
+    echo [INFO] Using Clang for C++17 support
+    goto :compiler_found
+)
+
+REM Check for MSVC
 where cl >nul 2>&1
-if %errorlevel% == 0 (
+if %errorlevel% equ 0 (
     set BUILD_ENV=msvc
     echo [INFO] Detected MSVC environment
-) else (
-    where g++ >nul 2>&1
-    if %errorlevel% == 0 (
-        set BUILD_ENV=mingw
-        echo [INFO] Detected MinGW environment
-    ) else (
-        echo [ERROR] No C++ compiler found!
-        echo.
-        echo Please install one of the following:
-        echo   1. Visual Studio 2022 with C++ development tools
-        echo   2. MSYS2 with MinGW toolchain
-        echo.
-        pause
-        exit /b 1
-    )
+    goto :compiler_found
 )
+
+REM Check for MinGW
+where g++ >nul 2>&1
+if %errorlevel% equ 0 (
+    set BUILD_ENV=mingw
+    echo [INFO] Detected MinGW environment
+    goto :compiler_found
+)
+
+REM No compiler found
+echo [ERROR] No C++ compiler found!
+echo.
+echo Please install one of the following:
+echo   1. LLVM/Clang 19.0.0+ (Recommended for C++17)
+echo      Install via: winget install LLVM.LLVM
+echo   2. Visual Studio 2022 with C++ development tools
+echo   3. MSYS2 with MinGW toolchain
+echo.
+echo Debug info:
+where cl
+where g++
+where clang++
+pause
+exit /b 1
+
+:compiler_found
 
 REM Check prerequisites
 echo [INFO] Checking prerequisites...
@@ -92,8 +116,25 @@ if "%BUILD_ENV%" == "msvc" (
         pause
         exit /b 1
     )
+) else if "%BUILD_ENV%" == "clang" (
+    cmake .. -G "MinGW Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+    if %errorlevel% neq 0 (
+        echo [ERROR] CMake configuration failed!
+        cd ..
+        pause
+        exit /b 1
+    )
+    
+    echo [INFO] Building...
+    cmake --build . -j
+    if %errorlevel% neq 0 (
+        echo [ERROR] Build failed!
+        cd ..
+        pause
+        exit /b 1
+    )
 ) else (
-    cmake .. -G "MinGW Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    cmake .. -G "MinGW Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
     if %errorlevel% neq 0 (
         echo [ERROR] CMake configuration failed!
         cd ..
@@ -135,12 +176,15 @@ if defined EXECUTABLE (
     echo   4. Ball Collision Scene (Multiple balls on bounded plane)
     echo   5. Advanced Demo (Coming soon)
     echo   6. Particle System (Coming soon)
+    echo.
+    echo [SUCCESS] Build process completed successfully!
+    goto :end
 ) else (
     echo [ERROR] Executable not found! Build may have failed.
     pause
     exit /b 1
 )
 
-echo.
-echo [SUCCESS] Build process completed successfully!
+:end
+
 pause

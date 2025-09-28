@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../BaseScene.h"
-#include "../../src/rendering/Skybox.h"
-#include "../../src/rendering/Terrain.h"
-#include "../../src/rendering/GridRenderer.h"
+#include "../../engine/include/BaseScene.h"
+#include "../../engine/src/rendering/Skybox.h"
+#include "../../engine/src/rendering/Terrain.h"
+#include "../../engine/src/rendering/GridRenderer.h"
 
 /**
  * TerrainScene - Beautiful terrain with skybox and environment

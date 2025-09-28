@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BaseScene.h"
+#include "../../engine/include/BaseScene.h"
 #include <random>
 
 /**
@@ -38,7 +38,7 @@ private:
     static constexpr float BALL_RADIUS = 0.2f;        // 20 cm radius
     static constexpr float WALL_HEIGHT = 0.3f;        // 30 cm height
     static constexpr float WALL_WIDTH = 0.2f;         // 20 cm width
-    static constexpr int NUM_BALLS = 50;              // Number of balls
+    static constexpr int NUM_BALLS = 15;              // Number of balls (reduced for better spacing)
     
     // Random number generation
     std::random_device m_rd;

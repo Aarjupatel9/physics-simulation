@@ -12,6 +12,7 @@ Camera::Camera()
     , m_mouseSensitivity(0.1f)
     , m_controlsEnabled(true)
     , m_firstMouse(true)
+    , m_fpsToggleRequested(false)
     , m_lastMouseX(400.0)
     , m_lastMouseY(300.0)
 {
@@ -110,13 +111,23 @@ void Camera::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) 
 void Camera::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (!s_instance) return;
     
-    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-        s_instance->m_controlsEnabled = !s_instance->m_controlsEnabled;
-        if (s_instance->m_controlsEnabled) {
-            s_instance->m_firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        } else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (action == GLFW_PRESS) {
+        if (key == GLFW_KEY_B) {
+            s_instance->m_controlsEnabled = !s_instance->m_controlsEnabled;
+            if (s_instance->m_controlsEnabled) {
+                s_instance->m_firstMouse = true;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+        else if (key == GLFW_KEY_ESCAPE) {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+        else if (key == GLFW_KEY_F) {
+            // Toggle FPS display - we need to access the BaseScene's FPSRenderer
+            // This will be handled by the BaseScene's key handling
+            s_instance->m_fpsToggleRequested = true;
         }
     }
 }

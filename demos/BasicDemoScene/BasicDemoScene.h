@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BaseScene.h"
+#include "../../engine/include/BaseScene.h"
 
 /**
  * BasicDemoScene - Simple physics demo with cube and sphere

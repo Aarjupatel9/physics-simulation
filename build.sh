@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Cross-Platform Physics Engine Build Script
+# Cross-Platform RealityCore Physics Engine Build Script
 # Compatible with macOS, Linux, and Windows (via Git Bash/MSYS2)
 
 set -e  # Exit on any error
@@ -154,7 +154,7 @@ print_installation_instructions() {
 
 # Build the project
 build_project() {
-    print_status "Building Physics Engine..."
+    print_status "Building Physics Simulation (Engine + Demos)..."
     
     # Clean and create build directory
     if [ -d "build" ]; then
@@ -196,40 +196,64 @@ build_project() {
 
 # Find executable and provide run instructions
 find_executable() {
-    print_status "Locating executable..."
+    print_status "Locating executables..."
     
-    local executable=""
+    local demos_found=()
+    
+    # Look for demo executables
     if [[ "$OS" == "windows" ]]; then
-        if [ -f "build/Release/PhysicsEngine.exe" ]; then
-            executable="build/Release/PhysicsEngine.exe"
-        elif [ -f "build/PhysicsEngine.exe" ]; then
-            executable="build/PhysicsEngine.exe"
+        if [ -f "build/Release/demos/BallCollisionDemo.exe" ]; then
+            demos_found+=("build/Release/demos/BallCollisionDemo.exe")
+        elif [ -f "build/demos/BallCollisionDemo.exe" ]; then
+            demos_found+=("build/demos/BallCollisionDemo.exe")
+        fi
+        
+        if [ -f "build/Release/demos/BasicDemo.exe" ]; then
+            demos_found+=("build/Release/demos/BasicDemo.exe")
+        elif [ -f "build/demos/BasicDemo.exe" ]; then
+            demos_found+=("build/demos/BasicDemo.exe")
+        fi
+        
+        if [ -f "build/Release/demos/TerrainDemo.exe" ]; then
+            demos_found+=("build/Release/demos/TerrainDemo.exe")
+        elif [ -f "build/demos/TerrainDemo.exe" ]; then
+            demos_found+=("build/demos/TerrainDemo.exe")
         fi
     else
-        if [ -f "build/PhysicsEngine" ]; then
-            executable="build/PhysicsEngine"
+        if [ -f "build/demos/BallCollisionDemo" ]; then
+            demos_found+=("build/demos/BallCollisionDemo")
+        fi
+        
+        if [ -f "build/demos/BasicDemo" ]; then
+            demos_found+=("build/demos/BasicDemo")
+        fi
+        
+        if [ -f "build/demos/TerrainDemo" ]; then
+            demos_found+=("build/demos/TerrainDemo")
         fi
     fi
     
-    if [ -n "$executable" ]; then
-        print_success "Build complete! Executable: $executable"
+    if [ ${#demos_found[@]} -gt 0 ]; then
+        print_success "Build complete! Found ${#demos_found[@]} demo(s):"
         echo ""
-        print_status "To run the physics engine:"
+        print_status "Available demos:"
+        for demo in "${demos_found[@]}"; do
+            echo "  $demo" | sed 's|build/||' | sed 's|Release/||'
+        done
+        echo ""
+        print_status "To run a demo:"
         if [[ "$OS" == "windows" ]]; then
-            echo "  $executable"
+            echo "  ${demos_found[0]}"
         else
-            echo "  ./$executable"
+            echo "  ./${demos_found[0]}"
         fi
         echo ""
-        print_status "Available scenes:"
-        echo "  1. Basic Demo (Cube + Sphere with gravity)"
-        echo "  2. Beautiful Terrain (Procedural landscape)"
-        echo "  3. Mesh Intensive Demo (Performance stress test)"
-        echo "  4. Ball Collision Scene (Multiple balls on bounded plane)"
-        echo "  5. Advanced Demo (Coming soon)"
-        echo "  6. Particle System (Coming soon)"
+        print_status "Demo descriptions:"
+        echo "  BallCollisionDemo - Multiple balls with collision detection on a bounded plane"
+        echo "  BasicDemo - Simple physics demo with cube and sphere"
+        echo "  TerrainDemo - Beautiful terrain with skybox and environmental effects"
     else
-        print_error "Executable not found! Build may have failed."
+        print_error "No demo executables found! Build may have failed."
         exit 1
     fi
 }
@@ -237,7 +261,7 @@ find_executable() {
 # Main execution
 main() {
     echo "=========================================="
-    echo "Physics Engine Cross-Platform Build Script"
+    echo "Physics Simulation Cross-Platform Build Script"
     echo "=========================================="
     echo ""
     
