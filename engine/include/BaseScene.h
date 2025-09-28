@@ -6,7 +6,8 @@
 #include <GLFW/glfw3.h>
 
 // Forward declarations
-class World;
+class BulletWorld;
+class BulletRigidBody;
 class Camera;
 class Shader;
 class Mesh;
@@ -14,7 +15,8 @@ class RigidBody3D;
 class FPSRenderer;
 
 // Include headers for complete type definitions (needed for unique_ptr destructors)
-#include "../src/core/World.h"
+#include "bullet/BulletWorld.h"
+#include "bullet/BulletRigidBody.h"
 #include "../src/rendering/Camera.h"
 #include "../src/rendering/Shader.h"
 #include "../src/rendering/Mesh.h"
@@ -52,7 +54,7 @@ public:
 
 protected:
     // Core components
-    std::unique_ptr<World> m_world;
+    std::unique_ptr<BulletWorld> m_bulletWorld;
     std::unique_ptr<Camera> m_camera;
     std::unique_ptr<Shader> m_shader;
     std::unique_ptr<FPSRenderer> m_fpsRenderer;
@@ -63,7 +65,7 @@ protected:
     std::shared_ptr<Mesh> m_planeMesh;
     
     // Physics objects (raw pointers since they're owned by m_objects)
-    std::vector<RigidBody3D*> m_physicsObjects;
+    std::vector<BulletRigidBody*> m_physicsObjects;
     
     // Window reference
     GLFWwindow* m_window = nullptr;
@@ -90,7 +92,7 @@ protected:
                      bool enablePhysics = false);
     
     // Rendering functions
-    void renderObject(const RigidBody3D& body, glm::vec3 color);
+    void renderObject(const BulletRigidBody& body, glm::vec3 color);
     void renderAllObjects();
     
     // Matrix getters
@@ -109,7 +111,7 @@ protected:
     
     // Object storage
     struct ObjectInfo {
-        std::unique_ptr<RigidBody3D> physicsBody;
+        std::unique_ptr<BulletRigidBody> physicsBody;
         glm::vec3 color;
         std::shared_ptr<Mesh> mesh;
     };
