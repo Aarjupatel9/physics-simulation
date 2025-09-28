@@ -1,9 +1,9 @@
-# Physics Engine Shared Library CMakeLists.txt
+# RealityCore Physics Engine Shared Library CMakeLists.txt
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(VERSION 3.10...3.27)
 
 # Set the project name
-project(PhysicsEngine VERSION 1.0.0 LANGUAGES CXX)
+project(RealityCore VERSION 1.0.0 LANGUAGES CXX)
 
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -65,17 +65,17 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp")
 
 # Create shared library
-add_library(PhysicsEngine SHARED ${ENGINE_SOURCES})
+add_library(RealityCore SHARED ${ENGINE_SOURCES})
 
 # Set library properties
-set_target_properties(PhysicsEngine PROPERTIES
+set_target_properties(RealityCore PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     PUBLIC_HEADER "include/RigidBody3D.h;include/Vec2.h;include/World.h"
 )
 
 # Include directories
-target_include_directories(PhysicsEngine PUBLIC
+target_include_directories(RealityCore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${glm_SOURCE_DIR}>
@@ -83,7 +83,7 @@ target_include_directories(PhysicsEngine PUBLIC
 )
 
 # Link libraries
-target_link_libraries(PhysicsEngine PUBLIC
+target_link_libraries(RealityCore PUBLIC
     glad
     ${OPENGL_LIBRARIES}
     glfw

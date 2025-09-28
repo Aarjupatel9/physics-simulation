@@ -1,10 +1,10 @@
-# Physics Simulation Engine (3D)
+# RealityCore Physics Engine (3D)
 
 ## Overview
 A comprehensive 3D physics engine written in C++ using OpenGL, GLFW, GLAD, and GLM. Features a modular architecture with the engine compiled as a shared library and multiple demo scenes as separate executables. Includes advanced physics simulation, collision detection, and performance monitoring.
 
 ## Architecture
-- **Shared Library Engine**: Core physics engine compiled as `libPhysicsEngine.dylib` (macOS) / `PhysicsEngine.dll` (Windows)
+- **Shared Library Engine**: Core physics engine compiled as `libRealityCore.dylib` (macOS) / `RealityCore.dll` (Windows)
 - **Modular Demos**: Each demo scene is a separate executable that links to the engine library
 - **Clean Separation**: Engine source code in `engine/`, demo scenes in `demos/`
 - **Cross-platform Build**: Automated build scripts for macOS, Windows, and Linux

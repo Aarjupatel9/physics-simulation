@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Cross-Platform Physics Engine Build Script
+# Cross-Platform RealityCore Physics Engine Build Script
 # Compatible with macOS, Linux, and Windows (via Git Bash/MSYS2)
 
 set -e  # Exit on any error

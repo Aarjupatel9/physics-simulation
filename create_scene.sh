@@ -208,8 +208,8 @@ add_executable(${SCENE_NAME}
     ${SCENE_NAME}Scene.cpp
 )
 
-# Link against the PhysicsEngine library
-target_link_libraries(${SCENE_NAME} PhysicsEngine)
+# Link against the RealityCore library
+target_link_libraries(${SCENE_NAME} RealityCore)
 
 # Set include directories
 target_include_directories(${SCENE_NAME} PRIVATE

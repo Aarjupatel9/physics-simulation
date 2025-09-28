@@ -1,9 +1,9 @@
-# Root CMakeLists.txt - Physics Simulation Project
+# Root CMakeLists.txt - RealityCore Physics Engine
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(VERSION 3.10...3.27)
 
 # Set the project name
-project(PhysicsSimulation VERSION 1.0.0 LANGUAGES CXX)
+project(RealityCore VERSION 1.0.0 LANGUAGES CXX)
 
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -58,7 +58,7 @@ if(BUILD_LAUNCHER)
 endif()
 
 # Print build configuration
-message(STATUS "=== Physics Simulation Build Configuration ===")
+message(STATUS "=== RealityCore Physics Engine Build Configuration ===")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 if(BUILD_EVERYTHING OR BUILD_ENGINE_ONLY)

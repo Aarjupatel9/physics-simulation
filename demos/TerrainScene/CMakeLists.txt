@@ -13,8 +13,8 @@ set(DEMO_SOURCES
 # Create executable
 add_executable(${DEMO_NAME} ${DEMO_SOURCES})
 
-# Link to PhysicsEngine library
-target_link_libraries(${DEMO_NAME} PRIVATE PhysicsEngine)
+# Link to RealityCore library
+target_link_libraries(${DEMO_NAME} PRIVATE RealityCore)
 
 # Include directories
 target_include_directories(${DEMO_NAME} PRIVATE
