@@ -27,7 +27,3 @@ _deps/
 *.exe
 *.app
 *.out
-
-
-# extra files
-todo.txt

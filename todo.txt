@@ -1,0 +1,159 @@
+# Physics Simulation Engine - TODO List
+
+## ✅ COMPLETED TASKS
+
+### 🏗️ Architecture & Build System
+- [x] **Shared Library Architecture**: Refactored engine into shared library (`libPhysicsEngine.dylib`/`PhysicsEngine.dll`)
+- [x] **Modular Demo Structure**: Each demo scene is now a separate executable
+- [x] **Cross-platform Build Scripts**: Updated `build.sh`, `build.bat`, `build.ps1` for new architecture
+- [x] **CMake Configuration**: Separate CMakeLists.txt for engine and demos
+- [x] **Directory Restructuring**: Clean separation of `engine/` and `demos/` folders
+- [x] **Build Output Organization**: Demos output to `build/demos/` directory
+
+### 🎮 Input Controls & User Experience
+- [x] **ESC Key Support**: Close demo windows with ESC key
+- [x] **F Key Support**: Toggle FPS display on/off
+- [x] **Centralized Key Handling**: Camera class handles all key inputs
+- [x] **FPS Toggle Integration**: BaseScene checks for FPS toggle requests
+- [x] **Cross-demo Consistency**: All demos have consistent control scheme
+
+### 🎯 Demo Scenes
+- [x] **Ball Collision Demo**: 15 balls with collision detection on 5x5m bounded plane
+- [x] **Basic Demo**: Simple physics demo with cube and sphere
+- [x] **Terrain Demo**: Beautiful procedural terrain with skybox
+- [x] **Conservative Collisions**: Perfectly elastic collisions (no energy loss, no friction)
+- [x] **Static Object Optimization**: Walls and ground are static for performance
+
+### 🔧 Engine Features
+- [x] **Mesh Caching System**: Preloaded common meshes for performance
+- [x] **Object Pooling**: Memory-efficient object management
+- [x] **Generic Shape System**: 1 unit = 1 meter, configurable sizes
+- [x] **Performance Monitoring**: Real-time FPS display with rolling average
+- [x] **BaseScene Architecture**: Clean abstraction for demo scenes
+
+### 📚 Documentation
+- [x] **README Update**: Updated to reflect new shared library architecture
+- [x] **Build Instructions**: Updated for new demo structure
+- [x] **Project Structure**: Documented new directory layout
+- [x] **Control Documentation**: Complete control scheme documentation
+
+---
+
+## 🚀 FUTURE ENHANCEMENTS & OPTIMIZATIONS
+
+### 🎮 New Demo Scenes
+- [ ] **Advanced Physics Demo**: Complex multi-body systems with constraints
+- [ ] **Particle System Demo**: Large-scale particle effects and simulations
+- [ ] **Fluid Simulation Demo**: Basic fluid dynamics (SPH or grid-based)
+- [ ] **Soft Body Demo**: Deformable objects and cloth simulation
+- [ ] **Vehicle Physics Demo**: Car simulation with suspension and wheels
+- [ ] **Destruction Demo**: Breakable objects and debris simulation
+
+### 🔧 Engine Optimizations
+- [ ] **GPU-based Collision Detection**: Move collision detection to compute shaders
+- [ ] **Spatial Partitioning**: Octree or BVH for efficient collision detection
+- [ ] **Multi-threading**: Parallel physics simulation and rendering
+- [ ] **Memory Pool Optimization**: Advanced memory management for large scenes
+- [ ] **LOD System**: Level-of-detail for distant objects
+- [ ] **Frustum Culling**: Only render objects in camera view
+
+### 🎨 Graphics & Rendering
+- [ ] **PBR Rendering**: Physically-based rendering with materials
+- [ ] **Shadow Mapping**: Real-time shadows and lighting
+- [ ] **Post-processing**: Bloom, SSAO, tone mapping
+- [ ] **Instanced Rendering**: Efficient rendering of many similar objects
+- [ ] **Texture Streaming**: Dynamic texture loading and management
+- [ ] **Advanced Shaders**: Normal mapping, parallax mapping, tessellation
+
+### ⚡ Physics Engine Enhancements
+- [ ] **Constraint System**: Joints, springs, and mechanical constraints
+- [ ] **Friction Models**: Static and dynamic friction
+- [ ] **Material Properties**: Density, elasticity, and surface properties
+- [ ] **Continuous Collision Detection**: For fast-moving objects
+- [ ] **Sleeping Objects**: Automatic deactivation of stationary objects
+- [ ] **Collision Response**: Advanced collision resolution algorithms
+
+### 🛠️ Developer Tools & Features
+- [ ] **Scene Editor**: Visual editor for creating and modifying scenes
+- [ ] **Debug Visualization**: Collision shapes, forces, and trajectories
+- [ ] **Performance Profiler**: Detailed performance analysis tools
+- [ ] **Scripting Support**: Lua or Python scripting for scene logic
+- [ ] **Asset Pipeline**: Automated asset processing and optimization
+- [ ] **Hot Reloading**: Runtime scene and shader reloading
+
+### 🌐 Platform & Integration
+- [ ] **Vulkan Backend**: Modern graphics API support
+- [ ] **Metal Backend**: Native macOS/iOS support
+- [ ] **WebAssembly**: Browser-based physics simulation
+- [ ] **Mobile Support**: iOS and Android ports
+- [ ] **VR Support**: Virtual reality physics simulation
+- [ ] **Network Multiplayer**: Multi-user physics simulation
+
+### 📊 Advanced Features
+- [ ] **Machine Learning Integration**: AI-driven physics behavior
+- [ ] **Procedural Generation**: Algorithmic scene and object generation
+- [ ] **Real-time Ray Tracing**: Hardware-accelerated ray tracing
+- [ ] **Advanced Lighting**: Global illumination and radiosity
+- [ ] **Weather System**: Dynamic weather effects and physics
+- [ ] **Sound Integration**: 3D spatial audio with physics events
+
+---
+
+## 🎯 IMMEDIATE NEXT STEPS (Priority Order)
+
+### High Priority
+1. **Performance Optimization**: Implement spatial partitioning for collision detection
+2. **Advanced Demo**: Create complex multi-body physics demo
+3. **Constraint System**: Add joints and springs to physics engine
+4. **Debug Tools**: Implement collision shape visualization
+
+### Medium Priority
+5. **Particle System**: Large-scale particle effects demo
+6. **Material Properties**: Add friction and material-based physics
+7. **Shadow Mapping**: Basic shadow rendering
+8. **Scene Editor**: Basic visual scene creation tool
+
+### Low Priority
+9. **Advanced Rendering**: PBR materials and post-processing
+10. **Multi-threading**: Parallel physics simulation
+11. **Mobile Support**: iOS/Android compatibility
+12. **WebAssembly**: Browser-based physics simulation
+
+---
+
+## 📈 PERFORMANCE TARGETS
+
+### Current Performance
+- **Ball Collision Demo**: 60+ FPS with 15 balls
+- **Basic Demo**: 60+ FPS with simple objects
+- **Terrain Demo**: 60+ FPS with procedural terrain
+
+### Target Performance
+- **1000+ Objects**: Maintain 60 FPS with spatial partitioning
+- **GPU Collision**: 10,000+ objects with GPU-based collision detection
+- **Multi-threading**: 2-4x performance improvement with parallel processing
+- **Memory Efficiency**: <100MB RAM usage for large scenes
+
+---
+
+## 🔍 TECHNICAL DEBT & REFACTORING
+
+### Code Quality
+- [ ] **Error Handling**: Comprehensive error handling and logging
+- [ ] **Unit Tests**: Test coverage for core physics functions
+- [ ] **Code Documentation**: Doxygen-style documentation
+- [ ] **Memory Leaks**: Comprehensive memory leak detection
+- [ ] **Performance Profiling**: Automated performance regression testing
+
+### Architecture Improvements
+- [ ] **Plugin System**: Modular component architecture
+- [ ] **Event System**: Decoupled event-driven architecture
+- [ ] **Resource Management**: Centralized resource loading and caching
+- [ ] **Configuration System**: Runtime configuration management
+- [ ] **Logging System**: Structured logging with different levels
+
+---
+
+*Last Updated: December 2024*
+*Total Completed Tasks: 25*
+*Total Future Tasks: 45+*
