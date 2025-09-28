@@ -31,21 +31,32 @@ public:
     float getPitch() const { return m_pitch; }
     void setPitch(float pitch) { m_pitch = pitch; }
     
-    // Movement settings
-    void setMoveSpeed(float speed) { m_moveSpeed = speed; }
-    void setMouseSensitivity(float sensitivity) { m_mouseSensitivity = sensitivity; }
+    glm::vec3 getFront() const { return computeFront(); }
     
-    // Control state
-    void setControlsEnabled(bool enabled);
     bool isControlsEnabled() const { return m_controlsEnabled; }
+    void setControlsEnabled(bool enabled);
     
-    // GLFW callbacks (static) - public for external access
+    // Check if FPS toggle was requested
+    bool checkFpsToggleRequest() {
+        if (m_fpsToggleRequested) {
+            m_fpsToggleRequested = false;
+            return true;
+        }
+        return false;
+    }
+    
+    // Static callbacks
     static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 private:
     glm::vec3 m_position;
+    glm::vec3 m_front;
+    glm::vec3 m_up;
+    glm::vec3 m_right;
+    glm::vec3 m_worldUp;
+    
     float m_yaw;
     float m_pitch;
     float m_fov;
@@ -55,6 +66,7 @@ private:
     
     bool m_controlsEnabled;
     bool m_firstMouse;
+    bool m_fpsToggleRequested;
     double m_lastMouseX;
     double m_lastMouseY;
     

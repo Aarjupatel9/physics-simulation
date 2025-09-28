@@ -324,6 +324,11 @@ void BaseScene::update(float deltaTime) {
     // Update camera
     if (m_camera) {
         m_camera->update(m_window, deltaTime);
+        
+        // Check for FPS toggle request
+        if (m_camera->checkFpsToggleRequest() && m_fpsRenderer) {
+            m_fpsRenderer->toggleDisplay();
+        }
     }
     
     // Update FPS renderer with current metrics

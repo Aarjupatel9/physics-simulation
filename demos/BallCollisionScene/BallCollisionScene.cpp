@@ -1,7 +1,7 @@
 #include "BallCollisionScene.h"
-#include "../src/rendering/Camera.h"
-#include "../src/core/RigidBody3D.h"
-#include "../src/shapes/Sphere.h"
+#include "../../engine/src/rendering/Camera.h"
+#include "../../engine/src/core/RigidBody3D.h"
+#include "../../engine/src/shapes/Sphere.h"
 #include <iostream>
 
 BallCollisionScene::BallCollisionScene() 

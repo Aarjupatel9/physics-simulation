@@ -1,9 +1,9 @@
-# Set the minimum required version of CMake
+# Root CMakeLists.txt - Physics Simulation Project
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(VERSION 3.10...3.27)
 
 # Set the project name
-project(PhysicsEngine3D VERSION 1.0.0 LANGUAGES CXX)
+project(PhysicsSimulation VERSION 1.0.0 LANGUAGES CXX)
 
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -16,6 +16,8 @@ if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
     # Suppress OpenGL deprecation warnings on Windows
     add_compile_definitions(GL_SILENCE_DEPRECATION)
+    # Define M_PI for MinGW compatibility
+    add_compile_definitions(_USE_MATH_DEFINES)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # GCC/Clang specific settings
     add_compile_options(-Wall -Wextra -Wpedantic)
@@ -23,8 +25,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "C
         # Suppress OpenGL deprecation warnings on macOS
         add_compile_definitions(GL_SILENCE_DEPRECATION)
     endif()
-    # Define M_PI for MinGW compatibility
-    add_compile_definitions(_USE_MATH_DEFINES)
 endif()
 
 # Set output directories
@@ -32,71 +32,48 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/Release)
 
-# --- Library Integration using FetchContent ---
-# This automatically downloads and configures the libraries we need.
-include(FetchContent)
+# Build options
+option(BUILD_ENGINE_ONLY "Build only the engine library" OFF)
+option(BUILD_DEMOS_ONLY "Build only the demos" OFF)
+option(BUILD_LAUNCHER "Build the launcher" OFF)
 
-# GLFW (Windowing and Input)
-FetchContent_Declare(
-  glfw
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG 3.3.8
-)
-# Reduce GLFW build footprint
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(glfw)
+# Default: build everything
+if(NOT BUILD_ENGINE_ONLY AND NOT BUILD_DEMOS_ONLY)
+    set(BUILD_EVERYTHING ON)
+endif()
 
-# GLAD (OpenGL Loader)
-FetchContent_Declare(
-  glad
-  GIT_REPOSITORY https://github.com/Dav1dde/glad.git
-  GIT_TAG v0.1.36
-)
-# Prefer the target provided by the project
-FetchContent_MakeAvailable(glad)
+# Build the engine library
+if(BUILD_EVERYTHING OR BUILD_ENGINE_ONLY)
+    add_subdirectory(engine)
+endif()
 
+# Build the demos
+if(BUILD_EVERYTHING OR BUILD_DEMOS_ONLY)
+    add_subdirectory(demos)
+endif()
 
-# GLM (Mathematics Library) - header-only; fetch headers only (no configure/build)
-FetchContent_Declare(
-  glm
-  GIT_REPOSITORY https://github.com/g-truc/glm.git
-  GIT_TAG 0.9.9.8
-)
-FetchContent_MakeAvailable(glm)
+# Build the launcher (future)
+if(BUILD_LAUNCHER)
+    add_subdirectory(launcher)
+endif()
 
-
-# Find OpenGL
-find_package(OpenGL REQUIRED)
-
-# --- Project Configuration ---
-
-# Find all source files in the "src" directory and subdirectories
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-file(GLOB_RECURSE SCENARIO_SOURCES "scenarios/*.cpp")
-
-# Combine all sources
-set(ALL_SOURCES ${SOURCES} ${SCENARIO_SOURCES})
-
-# GLAD provides target `glad`
-
-# Add an executable target
-add_executable(PhysicsEngine ${ALL_SOURCES})
-
-# Add include directories
-target_include_directories(PhysicsEngine PUBLIC 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/scenarios"
-    ${glm_SOURCE_DIR} # Add GLM's headers
-    ${glad_SOURCE_DIR}/include # Add GLAD's headers
-)
-
-# Link the required libraries to our executable
-target_link_libraries(PhysicsEngine PRIVATE 
-    glad
-    ${OPENGL_LIBRARIES} 
-    glfw
-)
-
+# Print build configuration
+message(STATUS "=== Physics Simulation Build Configuration ===")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
+if(BUILD_EVERYTHING OR BUILD_ENGINE_ONLY)
+    message(STATUS "Build engine: ON")
+else()
+    message(STATUS "Build engine: OFF")
+endif()
+if(BUILD_EVERYTHING OR BUILD_DEMOS_ONLY)
+    message(STATUS "Build demos: ON")
+else()
+    message(STATUS "Build demos: OFF")
+endif()
+if(BUILD_LAUNCHER)
+    message(STATUS "Build launcher: ON")
+else()
+    message(STATUS "Build launcher: OFF")
+endif()
+message(STATUS "===============================================")
