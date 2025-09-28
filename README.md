@@ -197,6 +197,54 @@ Each demo scene is a separate executable that uses the shared physics engine lib
 ./build/demos/TerrainDemo
 ```
 
+## Creating New Demo Scenes
+
+The project includes a powerful scene generator script that creates new demo scenes instantly:
+
+### Using the Scene Generator
+```bash
+# Create a new scene
+./create_scene.sh <SceneName>
+
+# Example: Create a new collision test scene
+./create_scene.sh CollisionTest
+```
+
+### What the Script Creates
+The script automatically generates:
+- **Scene Directory**: `demos/<SceneName>/`
+- **Header File**: `<SceneName>Scene.h` (with proper BaseScene inheritance)
+- **Implementation**: `<SceneName>Scene.cpp` (with all required methods)
+- **Main File**: `main.cpp` (with complete GLFW setup)
+- **CMakeLists.txt**: Proper linking and configuration
+
+### Manual Steps After Generation
+1. **Add to CMakeLists.txt**: Add `add_subdirectory(<SceneName>)` to `demos/CMakeLists.txt`
+2. **Build**: `cmake -B build && cmake --build build --target <SceneName>`
+3. **Run**: `./build/<SceneName>`
+
+### Example Workflow
+```bash
+# Create a new physics test scene
+./create_scene.sh PhysicsTest
+
+# Add to CMakeLists.txt manually
+echo "add_subdirectory(PhysicsTest)" >> demos/CMakeLists.txt
+
+# Build and run
+cmake -B build
+cmake --build build --target PhysicsTest
+./build/PhysicsTest
+```
+
+### Scene Structure
+Each generated scene includes:
+- **Camera controls** (WASD, mouse look, zoom)
+- **FPS display** (press 'F' to toggle)
+- **Physics world** setup
+- **Mesh caching** system
+- **Clean architecture** following BaseScene pattern
+
 ## Clean Build
 To completely clean the build directory:
 
