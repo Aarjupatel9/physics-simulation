@@ -7,6 +7,7 @@ A comprehensive 3D physics engine written in C++ using OpenGL, GLFW, GLAD, and G
 - **Shared Library Engine**: Core physics engine compiled as `libRealityCore.dylib` (macOS) / `RealityCore.dll` (Windows)
 - **Modular Demos**: Each demo scene is a separate executable that links to the engine library
 - **Clean Separation**: Engine source code in `engine/`, demo scenes in `demos/`
+- **Organized Build Output**: Executables in `build/bin/`, libraries in `build/lib/`, dependencies in `build/deps/`
 - **Cross-platform Build**: Automated build scripts for macOS, Windows, and Linux
 
 ## Features
@@ -98,9 +99,9 @@ The build scripts will:
 4. **Run Demos:**
    ```bash
    # Run specific demo
-   ./build/demos/BallCollisionDemo
-   ./build/demos/BasicDemo
-   ./build/demos/TerrainDemo
+./build/bin/<DemoName>
+
+# See demos/README.md for complete demo list
    ```
 
 #### Windows (Visual Studio)
@@ -138,9 +139,9 @@ The build scripts will:
 4. **Run Demos:**
    ```bash
    # Run specific demo
-   build/demos/BallCollisionDemo.exe
-   build/demos/BasicDemo.exe
-   build/demos/TerrainDemo.exe
+build\bin\<DemoName>.exe
+
+# See demos/README.md for complete demo list
    ```
 
 #### Linux
@@ -165,41 +166,55 @@ The build scripts will:
 3. **Run Demos:**
    ```bash
    # Run specific demo
-   ./build/demos/BallCollisionDemo
-   ./build/demos/BasicDemo
-   ./build/demos/TerrainDemo
+./build/bin/<DemoName>
+
+# See demos/README.md for complete demo list
    ```
 
-## Available Demo Scenes
-Each demo scene is a separate executable that uses the shared physics engine library:
+## Demo Scenes
 
-### 1. Ball Collision Demo (`./build/demos/BallCollisionDemo`)
-- **Features**: 15 balls with collision detection on a 5x5 meter bounded plane
-- **Physics**: Conservative collisions (no energy loss, no friction)
-- **Controls**: Press 'P' to start physics simulation
-- **Performance**: Optimized for collision detection and physics integration
+The project includes multiple interactive demo scenes showcasing different aspects of the physics engine. Each demo is a separate executable that uses the shared engine library.
 
-### 2. Basic Demo (`./build/demos/BasicDemo`)
-- **Features**: Simple physics demo with cube and sphere
-- **Physics**: Gravity simulation with ground collision
-- **Use Case**: Basic physics engine testing and validation
+**📋 For complete demo descriptions, controls, and usage instructions, see: [`demos/README.md`](./demos/README.md)**
 
-### 3. Terrain Demo (`./build/demos/TerrainDemo`)
-- **Features**: Beautiful procedural terrain with skybox
-- **Rendering**: Advanced terrain generation and environmental effects
-- **Use Case**: Graphics and rendering performance testing
+### Quick Demo Overview
+- **Physics Validation**: Basic physics, gravity, and ground collision testing
+- **Collision Systems**: Single-ball, two-ball, and multi-ball collision demonstrations  
+- **Rendering & Graphics**: Advanced terrain generation and environmental effects
+- **Performance Testing**: Multi-object scenarios for performance analysis
 
-### Running Individual Demos
-```bash
-# Run specific demo
-./build/demos/BallCollisionDemo
-./build/demos/BasicDemo
-./build/demos/TerrainDemo
+### Build Output Structure
+The build system organizes outputs into logical directories:
 ```
+build/
+├── bin/          # All executable demos
+├── lib/          # Engine library and dependencies  
+├── deps/         # External dependencies (Bullet, GLFW, etc.)
+└── intermediate/ # Build artifacts and object files
+```
+
+### Running Demos
+```bash
+# Build all demos
+./build.sh
+
+# Run any demo from organized bin/ directory
+./build/bin/<DemoName>
+
+# Example:
+./build/bin/BallCollision2
+```
+
+**📋 See [`demos/README.md`](./demos/README.md) for complete demo list and descriptions.**
 
 ## Documentation
 
-Comprehensive documentation is available in the [`docs/`](./docs/) folder:
+Comprehensive documentation is available across multiple locations:
+
+### 🎮 [Demo Scenes](./demos/README.md)
+- **Complete demo descriptions** and usage instructions
+- **Universal controls** and demo-specific features
+- **Scene creation guide** and development workflow
 
 ### 📋 [Project Plans](./docs/project-plans/)
 - **Implementation roadmaps** and progress tracking
@@ -218,53 +233,14 @@ Comprehensive documentation is available in the [`docs/`](./docs/) folder:
 
 **Quick Start**: See [`docs/README.md`](./docs/README.md) for complete navigation guide.
 
-## Creating New Demo Scenes
+## Development
 
-The project includes a powerful scene generator script that creates new demo scenes instantly:
-
-### Using the Scene Generator
-```bash
-# Create a new scene
-./create_scene.sh <SceneName>
-
-# Example: Create a new collision test scene
-./create_scene.sh CollisionTest
-```
-
-### What the Script Creates
-The script automatically generates:
-- **Scene Directory**: `demos/<SceneName>/`
-- **Header File**: `<SceneName>Scene.h` (with proper BaseScene inheritance)
-- **Implementation**: `<SceneName>Scene.cpp` (with all required methods)
-- **Main File**: `main.cpp` (with complete GLFW setup)
-- **CMakeLists.txt**: Proper linking and configuration
-
-### Manual Steps After Generation
-1. **Add to CMakeLists.txt**: Add `add_subdirectory(<SceneName>)` to `demos/CMakeLists.txt`
-2. **Build**: `cmake -B build && cmake --build build --target <SceneName>`
-3. **Run**: `./build/<SceneName>`
-
-### Example Workflow
-```bash
-# Create a new physics test scene
-./create_scene.sh PhysicsTest
-
-# Add to CMakeLists.txt manually
-echo "add_subdirectory(PhysicsTest)" >> demos/CMakeLists.txt
-
-# Build and run
-cmake -B build
-cmake --build build --target PhysicsTest
-./build/PhysicsTest
-```
-
-### Scene Structure
-Each generated scene includes:
-- **Camera controls** (WASD, mouse look, zoom)
-- **FPS display** (press 'F' to toggle)
-- **Physics world** setup
-- **Mesh caching** system
-- **Clean architecture** following BaseScene pattern
+### Creating New Demo Scenes
+The project includes a scene generator script for creating new demos. See [`demos/README.md`](./demos/README.md) for complete instructions on creating and managing demo scenes.
+### Contributing
+- **Engine Code**: Located in `engine/src/` - core physics and rendering systems
+- **Demo Scenes**: Located in `demos/` - individual demo implementations  
+- **Documentation**: Located in `docs/` - project plans, references, and guides
 
 ## Clean Build
 To completely clean the build directory:

@@ -233,13 +233,9 @@ find_executable() {
             echo "  ./${demos_found[0]}"
         fi
         echo ""
-        print_status "Demo descriptions:"
-        echo "  BallCollision2 - Two-ball collision physics demonstration"
-        echo "  BallCollisionDemo - Multiple balls with collision detection on a bounded plane"
-        echo "  BallFreeFall - Simple ball falling under gravity"
-        echo "  BasicDemo - Simple physics demo with cube and sphere"
-        echo "  BasicGroundBall - Ball collision with ground plane"
-        echo "  TerrainDemo - Beautiful terrain with skybox and environmental effects"
+        print_status "Demo information:"
+        echo "  See demos/README.md for detailed descriptions of all available demos"
+        echo "  Each demo showcases different aspects of the RealityCore physics engine"
     else
         print_error "No demo executables found! Build may have failed."
         exit 1

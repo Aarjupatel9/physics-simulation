@@ -4,10 +4,18 @@ Welcome to the RealityCore physics engine documentation. This folder contains al
 
 ## 📁 Documentation Structure
 
+### 🎮 [Demo Scenes](../demos/README.md)
+Interactive demo scenes showcasing engine capabilities:
+- **Complete Demo Descriptions** - All 6 available demo scenes with features and use cases
+- **Universal Controls** - Camera movement, physics controls, and system commands
+- **Scene Creation Guide** - How to create new demo scenes using the generator script
+- **Development Workflow** - Building, running, and managing demo scenes
+
 ### 📋 [Project Plans](./project-plans/)
 Implementation plans, roadmaps, and project tracking documents:
 - **[Bullet Physics Implementation Plan](./project-plans/BULLET_PHYSICS_IMPLEMENTATION_PLAN.md)** - Detailed 6-phase implementation plan for Bullet Physics integration
 - **[Bullet Physics Ready Status](./project-plans/BULLET_PHYSICS_READY.md)** - Current implementation status and next steps
+- **[Build System Refactor Plan](./project-plans/BUILD_SYSTEM_REFACTOR_PLAN.md)** - Organized build structure implementation
 - **[Todo List](./project-plans/todo.txt)** - Active task tracking and completed milestones
 
 ### 📚 [Reference Materials](./reference/)
@@ -23,19 +31,21 @@ User guides and tutorials:
 
 ## 🎯 Quick Navigation
 
-### For Developers
+### For New Users
 - **Getting Started**: See main [README.md](../README.md) for build instructions
+- **Try Demos**: Check [Demo Scenes](../demos/README.md) for interactive examples
+- **Troubleshooting**: Browse [Physics Scenarios](./reference/PhysicsScenarios.md) for common issues
+
+### For Developers
 - **Implementation Status**: Check [Bullet Physics Ready Status](./project-plans/BULLET_PHYSICS_READY.md)
 - **Current Tasks**: Review [Todo List](./project-plans/todo.txt)
+- **Scene Development**: See [Demo Scenes](../demos/README.md) for demo creation
 
 ### For Physics Configuration
 - **Rigid Body Properties**: [Bullet Physics Properties](./reference/BulletPhysicsProperties.md)
 - **Common Issues**: [Physics Scenarios](./reference/PhysicsScenarios.md)
 - **Ball Physics**: [Ball Movement Patterns](./reference/BallMovementPatterns.md)
-
-### For Scene Setup
 - **Camera Setup**: [Camera Positions](./reference/CameraPositions.md)
-- **Physics Scenarios**: [Physics Scenarios](./reference/PhysicsScenarios.md)
 
 ## 📝 Document Maintenance
 
