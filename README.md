@@ -101,7 +101,6 @@ The build scripts will:
    # Run specific demo
 ./build/bin/<DemoName>
 
-# See demos/README.md for complete demo list
    ```
 
 #### Windows (Visual Studio)
@@ -141,7 +140,6 @@ The build scripts will:
    # Run specific demo
 build\bin\<DemoName>.exe
 
-# See demos/README.md for complete demo list
    ```
 
 #### Linux
@@ -168,7 +166,6 @@ build\bin\<DemoName>.exe
    # Run specific demo
 ./build/bin/<DemoName>
 
-# See demos/README.md for complete demo list
    ```
 
 ## Demo Scenes
