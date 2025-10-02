@@ -99,8 +99,7 @@ The build scripts will:
 4. **Run Demos:**
    ```bash
    # Run specific demo
-./build/bin/<DemoName>
-
+   ./build/bin/<DemoName>
    ```
 
 #### Windows (Visual Studio)
@@ -117,9 +116,7 @@ The build scripts will:
 5. **Run Demos:**
    ```cmd
    # Run specific demo
-   build\Release\demos\BallCollisionDemo.exe
-   build\Release\demos\BasicDemo.exe
-   build\Release\demos\TerrainDemo.exe
+   build\bin\<DemoName>.exe
    ```
 
 #### Windows (MSYS2/MinGW)
@@ -138,8 +135,7 @@ The build scripts will:
 4. **Run Demos:**
    ```bash
    # Run specific demo
-build\bin\<DemoName>.exe
-
+   build\bin\<DemoName>.exe
    ```
 
 #### Linux
@@ -164,8 +160,7 @@ build\bin\<DemoName>.exe
 3. **Run Demos:**
    ```bash
    # Run specific demo
-./build/bin/<DemoName>
-
+   ./build/bin/<DemoName>
    ```
 
 ## Demo Scenes
@@ -234,6 +229,7 @@ Comprehensive documentation is available across multiple locations:
 
 ### Creating New Demo Scenes
 The project includes a scene generator script for creating new demos. See [`demos/README.md`](./demos/README.md) for complete instructions on creating and managing demo scenes.
+
 ### Contributing
 - **Engine Code**: Located in `engine/src/` - core physics and rendering systems
 - **Demo Scenes**: Located in `demos/` - individual demo implementations  
@@ -303,8 +299,9 @@ physics-simulation/
 │   └── CMakeLists.txt         # Demos build configuration
 ├── launcher/                  # Future launcher application
 ├── build/                     # Build output directory
-│   ├── engine/                # Engine shared library
-│   └── demos/                 # Demo executables
+│   ├── bin/                   # Demo executables
+│   ├── lib/                   # Engine shared library
+│   └── deps/                  # External dependencies
 ├── CMakeLists.txt             # Root CMake configuration
 ├── build.sh                   # Cross-platform build script (macOS/Linux)
 ├── build.bat                  # Windows Command Prompt build script
@@ -314,6 +311,7 @@ physics-simulation/
 
 ## Dependencies
 All dependencies are automatically fetched via CMake FetchContent:
+- **Bullet Physics 3.25**: Professional physics simulation and collision detection
 - **GLFW 3.3.8**: Window management and input handling
 - **GLAD 0.1.36**: OpenGL function loading
 - **GLM 0.9.9.8**: Mathematics library for graphics
