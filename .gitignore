@@ -27,3 +27,6 @@ _deps/
 *.exe
 *.app
 *.out
+
+# extra files
+backup/

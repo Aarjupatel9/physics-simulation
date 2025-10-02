@@ -39,11 +39,32 @@ BulletRigidBody::BulletRigidBody(btCollisionShape* shape, float mass,
     // Create rigid body
     m_rigidBody = new btRigidBody(rbInfo);
     
+    // Set physics properties for better collision behavior
+    m_rigidBody->setRestitution(0.1f); // Low bounciness
+    m_rigidBody->setFriction(0.8f); // High friction
+    m_rigidBody->setRollingFriction(0.05f); // Rolling friction
+    m_rigidBody->setSpinningFriction(0.05f); // Spinning friction
+    
     // Set initial properties
     if (m_isStatic) {
         m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+        std::cout << "DEBUG: RigidBody set as STATIC" << std::endl;
     } else {
         m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);
+        std::cout << "DEBUG: RigidBody set as DYNAMIC, mass=" << mass << std::endl;
+        
+        // Ensure it's not kinematic
+        m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+        
+        // Ensure it's not sleeping
+        m_rigidBody->setActivationState(ACTIVE_TAG);
+        
+        // Debug: Print rigid body properties
+        std::cout << "DEBUG: RigidBody properties - Mass: " << mass 
+                  << ", CollisionFlags: " << m_rigidBody->getCollisionFlags()
+                  << ", ActivationState: " << m_rigidBody->getActivationState()
+                  << ", IsStatic: " << m_rigidBody->isStaticObject()
+                  << ", IsKinematic: " << m_rigidBody->isKinematicObject() << std::endl;
     }
 }
 
@@ -64,9 +85,24 @@ glm::vec3 BulletRigidBody::getPosition() const {
         return glm::vec3(0.0f);
     }
     
-    btTransform transform;
-    m_motionState->getWorldTransform(transform);
-    return bulletToGlm(transform.getOrigin());
+    // Try reading from rigid body directly first
+    btTransform transform = m_rigidBody->getWorldTransform();
+    glm::vec3 posFromRigidBody = bulletToGlm(transform.getOrigin());
+    
+    // Also try reading from motion state
+    btTransform motionTransform;
+    m_motionState->getWorldTransform(motionTransform);
+    glm::vec3 posFromMotionState = bulletToGlm(motionTransform.getOrigin());
+    
+    // Debug: Print both positions to see which one is being updated
+    static int debugCount = 0;
+    debugCount++;
+    if (debugCount % 60 == 0) {
+        std::cout << "DEBUG: getPosition() - RigidBody: (" << posFromRigidBody.x << ", " << posFromRigidBody.y << ", " << posFromRigidBody.z 
+                  << ") MotionState: (" << posFromMotionState.x << ", " << posFromMotionState.y << ", " << posFromMotionState.z << ")" << std::endl;
+    }
+    
+    return posFromRigidBody; // Use rigid body position
 }
 
 void BulletRigidBody::setPosition(const glm::vec3& position) {

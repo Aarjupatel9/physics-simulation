@@ -35,8 +35,19 @@ void BulletWorld::InitializeBulletComponents() {
     
     // Set default parameters
     m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
-    m_dynamicsWorld->getSolverInfo().m_numIterations = 10;
-    m_dynamicsWorld->getSolverInfo().m_solverMode = SOLVER_SIMD;
+    
+    // Improve collision resolution with moderate settings
+    btContactSolverInfo& solverInfo = m_dynamicsWorld->getSolverInfo();
+    solverInfo.m_numIterations = 50; // Increased iterations for better resolution
+    solverInfo.m_solverMode = SOLVER_SIMD | SOLVER_RANDMIZE_ORDER | SOLVER_USE_WARMSTARTING; // Better solver mode
+    solverInfo.m_splitImpulse = true; // Enable split impulse for better contact resolution
+    solverInfo.m_splitImpulsePenetrationThreshold = -0.002f; // Slight negative threshold retains separation
+    solverInfo.m_erp = 0.2f; // Error reduction parameter
+    solverInfo.m_erp2 = 0.2f; // Error reduction parameter for contact constraints
+    solverInfo.m_globalCfm = 0.0f; // Default CFM
+    
+    // Set collision margins for better contact detection
+    m_dynamicsWorld->getDispatchInfo().m_allowedCcdPenetration = 0.0001f;
 }
 
 void BulletWorld::CleanupBulletComponents() {
@@ -72,6 +83,44 @@ void BulletWorld::Update(float deltaTime, int maxSubSteps, float fixedTimeStep) 
         return;
     }
     
+    // Debug: Print deltaTime every 60 calls
+    static int updateCount = 0;
+    updateCount++;
+    if (updateCount % 60 == 0) {
+        std::cout << "DEBUG: BulletWorld::Update called with deltaTime=" << deltaTime 
+                  << ", maxSubSteps=" << maxSubSteps << ", fixedTimeStep=" << fixedTimeStep << std::endl;
+        
+        // Debug: Print all rigid body positions and velocities
+        std::cout << "DEBUG: All rigid bodies in world:" << std::endl;
+        for (int i = 0; i < m_dynamicsWorld->getNumCollisionObjects(); i++) {
+            btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            if (body) {
+                btTransform transform = body->getWorldTransform();
+                btVector3 pos = transform.getOrigin();
+                btVector3 vel = body->getLinearVelocity();
+                std::cout << "  Body " << i << ": pos(" << pos.x() << ", " << pos.y() << ", " << pos.z() 
+                          << ") vel(" << vel.x() << ", " << vel.y() << ", " << vel.z() 
+                          << ") mass=" << body->getInvMass() << " static=" << body->isStaticObject() << std::endl;
+                
+                // Additional debug for collision shapes
+                btCollisionShape* shape = body->getCollisionShape();
+                if (shape) {
+                    if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
+                        btBoxShape* boxShape = static_cast<btBoxShape*>(shape);
+                        btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+                        std::cout << "    Box halfExtents: (" << halfExtents.x() << ", " << halfExtents.y() << ", " << halfExtents.z() << ")" << std::endl;
+                        std::cout << "    Box top surface at Y=" << (pos.y() + halfExtents.y()) << std::endl;
+                    } else if (shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
+                        btSphereShape* sphereShape = static_cast<btSphereShape*>(shape);
+                        float radius = sphereShape->getRadius();
+                        std::cout << "    Sphere radius: " << radius << ", bottom at Y=" << (pos.y() - radius) << std::endl;
+                    }
+                }
+            }
+        }
+    }
+    
     // Step the simulation
     m_dynamicsWorld->stepSimulation(deltaTime, maxSubSteps, fixedTimeStep);
     
@@ -86,6 +135,7 @@ void BulletWorld::AddRigidBody(btRigidBody* body) {
     }
     
     m_dynamicsWorld->addRigidBody(body);
+    std::cout << "DEBUG: RigidBody added to dynamics world. Total bodies: " << m_dynamicsWorld->getNumCollisionObjects() << std::endl;
 }
 
 void BulletWorld::RemoveRigidBody(btRigidBody* body) {

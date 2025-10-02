@@ -5,11 +5,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 btBoxShape* BulletCollisionShapes::CreateBox(const glm::vec3& halfExtents) {
-    return new btBoxShape(glmToBullet(halfExtents));
+    btBoxShape* shape = new btBoxShape(glmToBullet(halfExtents));
+    shape->setMargin(0.01f); // Increased collision margin for better contact resolution
+    std::cout << "DEBUG: Created box shape with halfExtents(" << halfExtents.x << ", " << halfExtents.y << ", " << halfExtents.z 
+              << ") margin=" << shape->getMargin() << std::endl;
+    return shape;
 }
 
 btSphereShape* BulletCollisionShapes::CreateSphere(float radius) {
-    return new btSphereShape(radius);
+    btSphereShape* shape = new btSphereShape(radius);
+    // Don't override margin for spheres - let Bullet handle it naturally
+    std::cout << "DEBUG: Created sphere shape with radius=" << radius 
+              << " margin=" << shape->getMargin() << std::endl;
+    return shape;
 }
 
 btCylinderShape* BulletCollisionShapes::CreateCylinder(const glm::vec3& halfExtents) {
@@ -21,7 +29,9 @@ btCapsuleShape* BulletCollisionShapes::CreateCapsule(float radius, float height)
 }
 
 btStaticPlaneShape* BulletCollisionShapes::CreatePlane(const glm::vec3& normal, float constant) {
-    return new btStaticPlaneShape(glmToBullet(normal), constant);
+    btStaticPlaneShape* shape = new btStaticPlaneShape(glmToBullet(normal), constant);
+    shape->setMargin(0.01f); // Set collision margin
+    return shape;
 }
 
 btConvexHullShape* BulletCollisionShapes::CreateConvexHull(const std::vector<glm::vec3>& vertices) {

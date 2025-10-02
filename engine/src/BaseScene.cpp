@@ -102,6 +102,10 @@ void BaseScene::setupCommonComponents(GLFWwindow* window) {
     }
     std::cout << "Shader loaded successfully!" << std::endl;
     
+    // Enable OpenGL depth testing for proper 3D rendering
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    
     // Create FPS renderer
     m_fpsRenderer = std::make_unique<FPSRenderer>();
     m_fpsRenderer->initialize();
@@ -213,13 +217,15 @@ void BaseScene::createSphere(glm::vec3 position,
     if (enablePhysics && m_bulletWorld) {
         m_bulletWorld->AddRigidBody(objInfo.physicsBody->getBulletRigidBody());
         m_physicsObjects.push_back(objInfo.physicsBody.get());
+        std::cout << "DEBUG: Sphere added to physics world, total physics objects: " << m_physicsObjects.size() << std::endl;
+    } else {
+        std::cout << "DEBUG: Sphere NOT added to physics world (enablePhysics=" << enablePhysics << ", m_bulletWorld=" << (m_bulletWorld ? "exists" : "null") << ")" << std::endl;
     }
     
     m_objects.push_back(std::move(objInfo));
     
-    std::cout << "Created sphere at (" << position.x << ", " << position.y << ", " << position.z 
-              << ") with radius " << radius 
-              << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
+    std::cout << "DEBUG: Sphere created at (" << position.x << ", " << position.y << ", " << position.z 
+              << ") with radius " << radius << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
 }
 
 void BaseScene::createPlane(glm::vec3 position, 
@@ -227,13 +233,16 @@ void BaseScene::createPlane(glm::vec3 position,
                            glm::vec3 rotation,
                            glm::vec3 color,
                            bool enablePhysics) {
-    // Create Bullet collision shape (static plane)
+    // Create Bullet collision shape (proper static plane)
     btStaticPlaneShape* planeShape = BulletCollisionShapes::CreatePlane(
         glm::vec3(0.0f, 1.0f, 0.0f), // Normal pointing up
-        0.0f // Distance from origin
+        -position.y // Distance from origin
     );
     
-    // Create Bullet rigid body (planes are always static)
+    std::cout << "DEBUG: Ground plane created at position (" << position.x << ", " << position.y << ", " << position.z 
+              << ") with normal (0, 1, 0) and distance " << -position.y << std::endl;
+    
+    // Create Bullet rigid body (ground is always static)
     auto physicsBody = std::make_unique<BulletRigidBody>(
         planeShape, 
         0.0f, // Mass = 0 for static objects
@@ -241,7 +250,7 @@ void BaseScene::createPlane(glm::vec3 position,
         rotation
     );
     
-    // Planes are always static
+    // Ground is always static
     physicsBody->setStatic(true);
     
     // Store object info
@@ -280,6 +289,9 @@ void BaseScene::renderObject(const BulletRigidBody& body, glm::vec3 color) {
     std::shared_ptr<Mesh> meshToRender = nullptr;
     glm::vec3 scale = glm::vec3(1.0f);
     
+    // Apply optional visual offset (needed when collision shape uses margin)
+    glm::vec3 visualOffset(0.0f);
+    
     // Get collision shape and determine scale
     btCollisionShape* shape = body.getCollisionShape();
     if (shape) {
@@ -287,15 +299,23 @@ void BaseScene::renderObject(const BulletRigidBody& body, glm::vec3 color) {
             case BOX_SHAPE_PROXYTYPE: {
                 btBoxShape* boxShape = static_cast<btBoxShape*>(shape);
                 btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
-                scale = glm::vec3(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
+                scale = glm::vec3(halfExtents.x() * 2.0f,
+                                   halfExtents.y() * 2.0f,
+                                   halfExtents.z() * 2.0f);
                 meshToRender = m_boxMesh;
+                std::cout << "DEBUG: Rendering box with halfExtentsWithMargin=(" << halfExtents.x() << ", "
+                          << halfExtents.y() << ", " << halfExtents.z() << ") margin="
+                          << boxShape->getMargin()
+                          << ", scale=(" << scale.x << ", " << scale.y << ", " << scale.z << ")" << std::endl;
                 break;
             }
             case SPHERE_SHAPE_PROXYTYPE: {
                 btSphereShape* sphereShape = static_cast<btSphereShape*>(shape);
-                float radius = sphereShape->getRadius();
-                scale = glm::vec3(radius * 2.0f);
+                float radiusWithMargin = sphereShape->getRadius();
+                scale = glm::vec3(radiusWithMargin);
                 meshToRender = m_sphereMesh;
+                std::cout << "DEBUG: Rendering sphere with radiusWithMargin=" << radiusWithMargin
+                          << " margin=" << sphereShape->getMargin() << ", renderScale=" << scale.x << std::endl;
                 break;
             }
             case STATIC_PLANE_PROXYTYPE: {
@@ -312,6 +332,11 @@ void BaseScene::renderObject(const BulletRigidBody& body, glm::vec3 color) {
     } else {
         std::cout << "Warning: No collision shape found for object" << std::endl;
         meshToRender = m_boxMesh; // Fallback
+    }
+    
+    // Apply visual offset if set
+    if (visualOffset != glm::vec3(0.0f)) {
+        model = glm::translate(model, visualOffset);
     }
     
     // Apply scale
@@ -352,6 +377,21 @@ void BaseScene::update(float deltaTime) {
     // Update Bullet Physics world
     if (m_bulletWorld) {
         m_bulletWorld->Update(deltaTime);
+        
+        // Debug: Print object positions every 60 frames (1 second at 60fps)
+        static int frameCount = 0;
+        frameCount++;
+        if (frameCount % 60 == 0) {
+            std::cout << "DEBUG: Frame " << frameCount << " - Object positions:" << std::endl;
+            for (size_t i = 0; i < m_objects.size(); i++) {
+                if (m_objects[i].physicsBody) {
+                    glm::vec3 pos = m_objects[i].physicsBody->getPosition();
+                    glm::vec3 vel = m_objects[i].physicsBody->getLinearVelocity();
+                    std::cout << "  Object " << i << ": pos(" << pos.x << ", " << pos.y << ", " << pos.z 
+                              << ") vel(" << vel.x << ", " << vel.y << ", " << vel.z << ")" << std::endl;
+                }
+            }
+        }
     }
     
     // Update camera
