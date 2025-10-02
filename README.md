@@ -197,6 +197,27 @@ Each demo scene is a separate executable that uses the shared physics engine lib
 ./build/demos/TerrainDemo
 ```
 
+## Documentation
+
+Comprehensive documentation is available in the [`docs/`](./docs/) folder:
+
+### 📋 [Project Plans](./docs/project-plans/)
+- **Implementation roadmaps** and progress tracking
+- **Bullet Physics integration** status and next steps
+- **Active task list** and completed milestones
+
+### 📚 [Reference Materials](./docs/reference/)
+- **Physics properties** and configuration guides
+- **Common scenarios** and troubleshooting
+- **Ball movement patterns** and collision analysis
+- **Camera positions** for optimal viewing
+
+### 📖 [User Guides](./docs/guides/)
+- **How to use** reference materials effectively
+- **Best practices** for scene development
+
+**Quick Start**: See [`docs/README.md`](./docs/README.md) for complete navigation guide.
+
 ## Creating New Demo Scenes
 
 The project includes a powerful scene generator script that creates new demo scenes instantly:

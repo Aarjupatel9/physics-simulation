@@ -303,10 +303,6 @@ void BaseScene::renderObject(const BulletRigidBody& body, glm::vec3 color) {
                                    halfExtents.y() * 2.0f,
                                    halfExtents.z() * 2.0f);
                 meshToRender = m_boxMesh;
-                std::cout << "DEBUG: Rendering box with halfExtentsWithMargin=(" << halfExtents.x() << ", "
-                          << halfExtents.y() << ", " << halfExtents.z() << ") margin="
-                          << boxShape->getMargin()
-                          << ", scale=(" << scale.x << ", " << scale.y << ", " << scale.z << ")" << std::endl;
                 break;
             }
             case SPHERE_SHAPE_PROXYTYPE: {
