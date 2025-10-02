@@ -58,6 +58,30 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+# Bullet Physics (Physics Engine)
+FetchContent_Declare(
+  bullet3
+  GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+  GIT_TAG 3.25
+)
+# Configure Bullet Physics build options
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET3_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
+set(BUILD_ENET OFF CACHE BOOL "" FORCE)
+set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET_ROBOTICS_GUI_EXTRA OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET_ROBOTICS_EXTRA OFF CACHE BOOL "" FORCE)
+set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+set(BUILD_PYBULLET_NUMPY OFF CACHE BOOL "" FORCE)
+set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(bullet3)
+
 # Find OpenGL
 find_package(OpenGL REQUIRED)
 
@@ -74,12 +98,26 @@ set_target_properties(RealityCore PROPERTIES
     PUBLIC_HEADER "include/RigidBody3D.h;include/Vec2.h;include/World.h"
 )
 
+# Set proper RPATH for library discovery
+if(APPLE)
+    set_target_properties(RealityCore PROPERTIES
+        INSTALL_RPATH "@loader_path"
+        BUILD_WITH_INSTALL_RPATH TRUE
+    )
+elseif(UNIX)
+    set_target_properties(RealityCore PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_WITH_INSTALL_RPATH TRUE
+    )
+endif()
+
 # Include directories
 target_include_directories(RealityCore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${glm_SOURCE_DIR}>
     $<BUILD_INTERFACE:${glad_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${bullet3_SOURCE_DIR}/src>
 )
 
 # Link libraries
@@ -87,6 +125,10 @@ target_link_libraries(RealityCore PUBLIC
     glad
     ${OPENGL_LIBRARIES}
     glfw
+    BulletDynamics
+    BulletCollision
+    BulletSoftBody
+    LinearMath
 )
 
 # Export targets for use by demos

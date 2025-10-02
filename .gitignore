@@ -27,3 +27,10 @@ _deps/
 *.exe
 *.app
 *.out
+
+# Test logs and debug files
+*.log
+debug_output*.txt
+
+# extra files
+backup/

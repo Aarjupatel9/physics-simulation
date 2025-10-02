@@ -200,37 +200,21 @@ find_executable() {
     
     local demos_found=()
     
-    # Look for demo executables
+    # Look for demo executables in organized bin/ directory
     if [[ "$OS" == "windows" ]]; then
-        if [ -f "build/Release/demos/BallCollisionDemo.exe" ]; then
-            demos_found+=("build/Release/demos/BallCollisionDemo.exe")
-        elif [ -f "build/demos/BallCollisionDemo.exe" ]; then
-            demos_found+=("build/demos/BallCollisionDemo.exe")
-        fi
-        
-        if [ -f "build/Release/demos/BasicDemo.exe" ]; then
-            demos_found+=("build/Release/demos/BasicDemo.exe")
-        elif [ -f "build/demos/BasicDemo.exe" ]; then
-            demos_found+=("build/demos/BasicDemo.exe")
-        fi
-        
-        if [ -f "build/Release/demos/TerrainDemo.exe" ]; then
-            demos_found+=("build/Release/demos/TerrainDemo.exe")
-        elif [ -f "build/demos/TerrainDemo.exe" ]; then
-            demos_found+=("build/demos/TerrainDemo.exe")
-        fi
+        # Windows executables with .exe extension
+        for demo in build/bin/*.exe; do
+            if [ -f "$demo" ]; then
+                demos_found+=("$demo")
+            fi
+        done
     else
-        if [ -f "build/demos/BallCollisionDemo" ]; then
-            demos_found+=("build/demos/BallCollisionDemo")
-        fi
-        
-        if [ -f "build/demos/BasicDemo" ]; then
-            demos_found+=("build/demos/BasicDemo")
-        fi
-        
-        if [ -f "build/demos/TerrainDemo" ]; then
-            demos_found+=("build/demos/TerrainDemo")
-        fi
+        # Unix executables (macOS/Linux)
+        for demo in build/bin/*; do
+            if [ -f "$demo" ] && [ -x "$demo" ]; then
+                demos_found+=("$demo")
+            fi
+        done
     fi
     
     if [ ${#demos_found[@]} -gt 0 ]; then
@@ -238,7 +222,8 @@ find_executable() {
         echo ""
         print_status "Available demos:"
         for demo in "${demos_found[@]}"; do
-            echo "  $demo" | sed 's|build/||' | sed 's|Release/||'
+            demo_name=$(basename "$demo" .exe)  # Remove .exe extension if present
+            echo "  $demo_name"
         done
         echo ""
         print_status "To run a demo:"
@@ -248,10 +233,9 @@ find_executable() {
             echo "  ./${demos_found[0]}"
         fi
         echo ""
-        print_status "Demo descriptions:"
-        echo "  BallCollisionDemo - Multiple balls with collision detection on a bounded plane"
-        echo "  BasicDemo - Simple physics demo with cube and sphere"
-        echo "  TerrainDemo - Beautiful terrain with skybox and environmental effects"
+        print_status "Demo information:"
+        echo "  See demos/README.md for detailed descriptions of all available demos"
+        echo "  Each demo showcases different aspects of the RealityCore physics engine"
     else
         print_error "No demo executables found! Build may have failed."
         exit 1

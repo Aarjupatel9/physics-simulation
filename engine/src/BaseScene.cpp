@@ -1,5 +1,7 @@
 #include "BaseScene.h"
-#include "../src/core/World.h"
+#include "bullet/BulletWorld.h"
+#include "bullet/BulletRigidBody.h"
+#include "bullet/BulletCollisionShapes.h"
 #include "../src/rendering/Camera.h"
 #include "../src/rendering/Shader.h"
 #include "../src/rendering/Mesh.h"
@@ -39,8 +41,8 @@ bool BaseScene::initialize(GLFWwindow* window) {
 }
 
 void BaseScene::setupCommonComponents(GLFWwindow* window) {
-    // Create physics world
-    m_world = std::make_unique<World>(glm::vec3(0.0f, -9.81f, 0.0f));
+    // Create Bullet Physics world
+    m_bulletWorld = std::make_unique<BulletWorld>(glm::vec3(0.0f, -9.81f, 0.0f));
     
     // Create camera
     m_camera = std::make_unique<Camera>();
@@ -100,6 +102,10 @@ void BaseScene::setupCommonComponents(GLFWwindow* window) {
     }
     std::cout << "Shader loaded successfully!" << std::endl;
     
+    // Enable OpenGL depth testing for proper 3D rendering
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    
     // Create FPS renderer
     m_fpsRenderer = std::make_unique<FPSRenderer>();
     m_fpsRenderer->initialize();
@@ -142,17 +148,21 @@ void BaseScene::createBox(glm::vec3 position,
                          glm::vec3 color,
                          bool enablePhysics,
                          float mass) {
-    // Create physics body
-    auto physicsBody = std::make_unique<RigidBody3D>(
-        std::make_unique<Box>(scale.x, scale.y, scale.z),
-        enablePhysics ? mass : 0.0f
+    // Create Bullet collision shape
+    btBoxShape* boxShape = BulletCollisionShapes::CreateBox(scale * 0.5f);
+    
+    // Create Bullet rigid body
+    auto physicsBody = std::make_unique<BulletRigidBody>(
+        boxShape, 
+        enablePhysics ? mass : 0.0f,
+        position,
+        rotation
     );
     
-    physicsBody->setPosition(position);
-    if (rotation != glm::vec3(0.0f)) {
-        physicsBody->setRotation(rotation);
+    // Set static if physics disabled
+    if (!enablePhysics) {
+        physicsBody->setStatic(true);
     }
-    physicsBody->setStatic(!enablePhysics);
     
     // Store object info
     ObjectInfo objInfo;
@@ -160,9 +170,9 @@ void BaseScene::createBox(glm::vec3 position,
     objInfo.color = color;
     objInfo.mesh = m_boxMesh;
     
-    // Add to world if physics enabled
-    if (enablePhysics) {
-        m_world->AddBody(objInfo.physicsBody.get());
+    // Add to Bullet world if physics enabled
+    if (enablePhysics && m_bulletWorld) {
+        m_bulletWorld->AddRigidBody(objInfo.physicsBody->getBulletRigidBody());
         m_physicsObjects.push_back(objInfo.physicsBody.get());
     }
     
@@ -179,14 +189,23 @@ void BaseScene::createSphere(glm::vec3 position,
                             bool enablePhysics,
                             float mass,
                             glm::vec3 initialVelocity) {
-    // Create physics body
-    auto physicsBody = std::make_unique<RigidBody3D>(
-        std::make_unique<Sphere>(radius),
-        enablePhysics ? mass : 0.0f
+    // Create Bullet collision shape
+    btSphereShape* sphereShape = BulletCollisionShapes::CreateSphere(radius);
+    
+    // Create Bullet rigid body
+    auto physicsBody = std::make_unique<BulletRigidBody>(
+        sphereShape, 
+        enablePhysics ? mass : 0.0f,
+        position
     );
     
-    physicsBody->setPosition(position);
-    physicsBody->setStatic(!enablePhysics);
+    // Set static if physics disabled
+    if (!enablePhysics) {
+        physicsBody->setStatic(true);
+    } else if (initialVelocity != glm::vec3(0.0f)) {
+        // Set initial velocity if provided
+        physicsBody->setLinearVelocity(initialVelocity);
+    }
         
     // Store object info
     ObjectInfo objInfo;
@@ -194,17 +213,19 @@ void BaseScene::createSphere(glm::vec3 position,
     objInfo.color = color;
     objInfo.mesh = m_sphereMesh;
     
-    // Add to world if physics enabled
-    if (enablePhysics) {
-        m_world->AddBody(objInfo.physicsBody.get());
+    // Add to Bullet world if physics enabled
+    if (enablePhysics && m_bulletWorld) {
+        m_bulletWorld->AddRigidBody(objInfo.physicsBody->getBulletRigidBody());
         m_physicsObjects.push_back(objInfo.physicsBody.get());
+        std::cout << "DEBUG: Sphere added to physics world, total physics objects: " << m_physicsObjects.size() << std::endl;
+    } else {
+        std::cout << "DEBUG: Sphere NOT added to physics world (enablePhysics=" << enablePhysics << ", m_bulletWorld=" << (m_bulletWorld ? "exists" : "null") << ")" << std::endl;
     }
     
     m_objects.push_back(std::move(objInfo));
     
-    std::cout << "Created sphere at (" << position.x << ", " << position.y << ", " << position.z 
-              << ") with radius " << radius 
-              << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
+    std::cout << "DEBUG: Sphere created at (" << position.x << ", " << position.y << ", " << position.z 
+              << ") with radius " << radius << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
 }
 
 void BaseScene::createPlane(glm::vec3 position, 
@@ -212,20 +233,24 @@ void BaseScene::createPlane(glm::vec3 position,
                            glm::vec3 rotation,
                            glm::vec3 color,
                            bool enablePhysics) {
-    // Create physics body with correct dimensions
-    auto physicsBody = std::make_unique<RigidBody3D>(
-        std::make_unique<Plane>(size.x, size.y),
-        enablePhysics ? 0.0f : 0.0f  // Planes are always static for now
+    // Create Bullet collision shape (proper static plane)
+    btStaticPlaneShape* planeShape = BulletCollisionShapes::CreatePlane(
+        glm::vec3(0.0f, 1.0f, 0.0f), // Normal pointing up
+        -position.y // Distance from origin
     );
     
-    std::cout << "Created plane at (" << position.x << ", " << position.y << ", " << position.z 
-              << ") with size (" << size.x << " x " << size.y << ")"
-              << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
+    std::cout << "DEBUG: Ground plane created at position (" << position.x << ", " << position.y << ", " << position.z 
+              << ") with normal (0, 1, 0) and distance " << -position.y << std::endl;
     
-    physicsBody->setPosition(position);
-    if (rotation != glm::vec3(0.0f)) {
-        physicsBody->setRotation(rotation);
-    }
+    // Create Bullet rigid body (ground is always static)
+    auto physicsBody = std::make_unique<BulletRigidBody>(
+        planeShape, 
+        0.0f, // Mass = 0 for static objects
+        position,
+        rotation
+    );
+    
+    // Ground is always static
     physicsBody->setStatic(true);
     
     // Store object info
@@ -234,55 +259,84 @@ void BaseScene::createPlane(glm::vec3 position,
     objInfo.color = color;
     objInfo.mesh = m_planeMesh;
     
-    // Add to world if physics enabled
-    if (enablePhysics) {
-        m_world->AddBody(objInfo.physicsBody.get());
+    // Add to Bullet world if physics enabled
+    if (enablePhysics && m_bulletWorld) {
+        m_bulletWorld->AddRigidBody(objInfo.physicsBody->getBulletRigidBody());
         m_physicsObjects.push_back(objInfo.physicsBody.get());
     }
     
     m_objects.push_back(std::move(objInfo));
     
     std::cout << "Created plane at (" << position.x << ", " << position.y << ", " << position.z 
-              << ") with size (" << size.x << ", " << size.y << ")" << std::endl;
+              << ") with size (" << size.x << " x " << size.y << ")"
+              << ", physics: " << (enablePhysics ? "enabled" : "disabled") << std::endl;
 }
 
-void BaseScene::renderObject(const RigidBody3D& body, glm::vec3 color) {
+void BaseScene::renderObject(const BulletRigidBody& body, glm::vec3 color) {
     // Create model matrix
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, body.getPosition());
     
-    // Apply rotation if needed
-    // TODO: Add rotation support
+    // Apply rotation
+    glm::vec3 rotation = body.getRotation();
+    if (rotation != glm::vec3(0.0f)) {
+        model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
     
-    // Apply scale based on shape type and get the correct mesh
+    // Apply scale based on collision shape type
     std::shared_ptr<Mesh> meshToRender = nullptr;
+    glm::vec3 scale = glm::vec3(1.0f);
     
-    // Debug: Check what type of shape we have
-    const BaseShape* shape = body.getShape();
-    if (!shape) {
-        std::cout << "Warning: No shape found for object" << std::endl;
-        return;
-    }
+    // Apply optional visual offset (needed when collision shape uses margin)
+    glm::vec3 visualOffset(0.0f);
     
-    // Try to cast to different shape types
-    if (const Box* box = dynamic_cast<const Box*>(shape)) {
-        glm::vec3 dims = box->getDimensions();
-        model = glm::scale(model, dims);
-        meshToRender = m_boxMesh;
-    } else if (const Sphere* sphere = dynamic_cast<const Sphere*>(shape)) {
-        float radius = sphere->getRadius();
-        // Base mesh is 1-unit radius, so scale directly by radius
-        model = glm::scale(model, glm::vec3(radius));
-        meshToRender = m_sphereMesh;
-    } else if (const Plane* plane = dynamic_cast<const Plane*>(shape)) {
-        // Scale the plane mesh to match the actual plane size
-        // Base mesh is now 1x1, so scale directly by dimensions
-        glm::vec2 dimensions = plane->getDimensions();
-        model = glm::scale(model, glm::vec3(dimensions.x, 1.0f, dimensions.y));
-        meshToRender = m_planeMesh;
+    // Get collision shape and determine scale
+    btCollisionShape* shape = body.getCollisionShape();
+    if (shape) {
+        switch (shape->getShapeType()) {
+            case BOX_SHAPE_PROXYTYPE: {
+                btBoxShape* boxShape = static_cast<btBoxShape*>(shape);
+                btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+                scale = glm::vec3(halfExtents.x() * 2.0f,
+                                   halfExtents.y() * 2.0f,
+                                   halfExtents.z() * 2.0f);
+                meshToRender = m_boxMesh;
+                break;
+            }
+            case SPHERE_SHAPE_PROXYTYPE: {
+                btSphereShape* sphereShape = static_cast<btSphereShape*>(shape);
+                float radiusWithMargin = sphereShape->getRadius();
+                scale = glm::vec3(radiusWithMargin);
+                meshToRender = m_sphereMesh;
+                std::cout << "DEBUG: Rendering sphere with radiusWithMargin=" << radiusWithMargin
+                          << " margin=" << sphereShape->getMargin() << ", renderScale=" << scale.x << std::endl;
+                break;
+            }
+            case STATIC_PLANE_PROXYTYPE: {
+                // For planes, use a default scale
+                scale = glm::vec3(10.0f, 0.1f, 10.0f); // Default plane size
+                meshToRender = m_planeMesh;
+                break;
+            }
+            default:
+                std::cout << "Warning: Unknown shape type for rendering" << std::endl;
+                meshToRender = m_boxMesh; // Fallback
+                break;
+        }
     } else {
-        std::cout << "Warning: Unknown shape type: " << typeid(*shape).name() << std::endl;
+        std::cout << "Warning: No collision shape found for object" << std::endl;
+        meshToRender = m_boxMesh; // Fallback
     }
+    
+    // Apply visual offset if set
+    if (visualOffset != glm::vec3(0.0f)) {
+        model = glm::translate(model, visualOffset);
+    }
+    
+    // Apply scale
+    model = glm::scale(model, scale);
     
     // Set uniforms
     m_shader->setUniform("model", model);
@@ -316,9 +370,24 @@ glm::mat4 BaseScene::getProjectionMatrix() const {
 }
 
 void BaseScene::update(float deltaTime) {
-    // Update physics world
-    if (m_world) {
-        m_world->Update(deltaTime);
+    // Update Bullet Physics world
+    if (m_bulletWorld) {
+        m_bulletWorld->Update(deltaTime);
+        
+        // Debug: Print object positions every 60 frames (1 second at 60fps)
+        static int frameCount = 0;
+        frameCount++;
+        if (frameCount % 60 == 0) {
+            std::cout << "DEBUG: Frame " << frameCount << " - Object positions:" << std::endl;
+            for (size_t i = 0; i < m_objects.size(); i++) {
+                if (m_objects[i].physicsBody) {
+                    glm::vec3 pos = m_objects[i].physicsBody->getPosition();
+                    glm::vec3 vel = m_objects[i].physicsBody->getLinearVelocity();
+                    std::cout << "  Object " << i << ": pos(" << pos.x << ", " << pos.y << ", " << pos.z 
+                              << ") vel(" << vel.x << ", " << vel.y << ", " << vel.z << ")" << std::endl;
+                }
+            }
+        }
     }
     
     // Update camera
@@ -385,7 +454,7 @@ void BaseScene::cleanup() {
     m_physicsObjects.clear();
     
     // Reset components
-    m_world.reset();
+    m_bulletWorld.reset();
     m_camera.reset();
     m_shader.reset();
     m_fpsRenderer.reset();
