@@ -98,19 +98,6 @@ set_target_properties(RealityCore PROPERTIES
     PUBLIC_HEADER "include/RigidBody3D.h;include/Vec2.h;include/World.h"
 )
 
-# Set proper RPATH for library discovery
-if(APPLE)
-    set_target_properties(RealityCore PROPERTIES
-        INSTALL_RPATH "@loader_path"
-        BUILD_WITH_INSTALL_RPATH TRUE
-    )
-elseif(UNIX)
-    set_target_properties(RealityCore PROPERTIES
-        INSTALL_RPATH "$ORIGIN"
-        BUILD_WITH_INSTALL_RPATH TRUE
-    )
-endif()
-
 # Include directories
 target_include_directories(RealityCore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
