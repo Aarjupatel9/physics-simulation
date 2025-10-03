@@ -433,6 +433,12 @@ void BaseScene::update(float deltaTime) {
     
     // Update camera (use controller if available, otherwise use default camera)
     if (m_cameraController) {
+        // Debug: Check if window is NULL
+        if (!m_window) {
+            std::cout << "WARNING: m_window is NULL in BaseScene::update!" << std::endl;
+            return;
+        }
+        
         // Handle camera controller input
         m_cameraController->handleInput(m_window);
         

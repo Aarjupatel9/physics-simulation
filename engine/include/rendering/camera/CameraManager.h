@@ -75,6 +75,20 @@ public:
     size_t getCameraCount() const { return m_cameras.size(); }
     
     /**
+     * @brief Get a camera by index
+     * @param index Camera index
+     * @return Pointer to camera, or nullptr if index is invalid
+     */
+    Camera* getCamera(size_t index) const;
+    
+    /**
+     * @brief Update all cameras in the manager
+     * @param window GLFW window for input handling
+     * @param deltaTime Time elapsed since last frame
+     */
+    void updateAllCameras(GLFWwindow* window, float deltaTime);
+    
+    /**
      * @brief Check if the manager has any cameras
      * @return True if there are cameras, false otherwise
      */

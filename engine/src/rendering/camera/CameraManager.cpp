@@ -97,3 +97,18 @@ const std::string& CameraManager::getActiveCameraName() const {
     
     return m_cameraNames[m_activeCameraIndex];
 }
+
+void CameraManager::updateAllCameras(GLFWwindow* window, float deltaTime) {
+    for (auto& camera : m_cameras) {
+        if (camera) {
+            camera->update(window, deltaTime);
+        }
+    }
+}
+
+Camera* CameraManager::getCamera(size_t index) const {
+    if (index >= m_cameras.size()) {
+        return nullptr;
+    }
+    return m_cameras[index].get();
+}

@@ -32,6 +32,11 @@ void BallCollision2CameraController::handleInput(GLFWwindow* window) {
     static bool tabPressed = false;
     static bool shiftTabPressed = false;
     
+    // Safety check: don't process input if window is NULL
+    if (!window) {
+        return;
+    }
+    
     // Direct camera selection
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && !key1Pressed) {
         std::cout << "🎥 Switching to Camera 1: Free-fly Camera" << std::endl;
@@ -94,11 +99,21 @@ void BallCollision2CameraController::handleInput(GLFWwindow* window) {
 }
 
 void BallCollision2CameraController::update(float deltaTime) {
-    // Update the active camera
-    Camera* activeCamera = m_cameraManager.getActiveCamera();
-    if (activeCamera) {
-        // Note: Camera update is handled by BaseScene, not here
-        // This method is for camera controller-specific updates
+    // Update ALL cameras to ensure follow cameras track their targets
+    // even when not the active camera
+    for (size_t i = 0; i < m_cameraManager.getCameraCount(); i++) {
+        Camera* camera = m_cameraManager.getCamera(i);
+        if (camera) {
+            // Use dynamic_cast to check if it's a FollowCamera
+            FollowCamera* followCamera = dynamic_cast<FollowCamera*>(camera);
+            if (followCamera) {
+                // Update follow camera with its own method
+                followCamera->update(nullptr, deltaTime);
+            } else {
+                // For other camera types, use base update method
+                camera->update(nullptr, deltaTime);
+            }
+        }
     }
 }
 
@@ -125,6 +140,8 @@ void BallCollision2CameraController::setupCameras() {
     
     // Camera 3: Follow Ball 1 (Follow)
     if (m_ball1) {
+        std::cout << "Creating Follow Ball 1 camera with ball at position: " 
+                  << m_ball1->getPosition().x << ", " << m_ball1->getPosition().y << ", " << m_ball1->getPosition().z << std::endl;
         auto followBall1Camera = std::make_unique<FollowCamera>(
             m_ball1,                          // Target: Ball 1
             glm::vec3(-2.0f, 1.5f, -2.0f),   // Offset: behind and above
@@ -132,10 +149,14 @@ void BallCollision2CameraController::setupCameras() {
         );
         followBall1Camera->setSmoothness(3.0f);
         m_cameraManager.addCamera(std::move(followBall1Camera), "Follow Ball 1 (Red)");
+    } else {
+        std::cout << "Warning: Ball 1 reference is null, cannot create follow camera" << std::endl;
     }
     
     // Camera 4: Follow Ball 2 (Follow)
     if (m_ball2) {
+        std::cout << "Creating Follow Ball 2 camera with ball at position: " 
+                  << m_ball2->getPosition().x << ", " << m_ball2->getPosition().y << ", " << m_ball2->getPosition().z << std::endl;
         auto followBall2Camera = std::make_unique<FollowCamera>(
             m_ball2,                          // Target: Ball 2
             glm::vec3(2.0f, 1.5f, 2.0f),     // Offset: different angle
@@ -143,6 +164,8 @@ void BallCollision2CameraController::setupCameras() {
         );
         followBall2Camera->setSmoothness(3.0f);
         m_cameraManager.addCamera(std::move(followBall2Camera), "Follow Ball 2 (Green)");
+    } else {
+        std::cout << "Warning: Ball 2 reference is null, cannot create follow camera" << std::endl;
     }
     
     // Camera 5: Orbit around scene center (Orbit)

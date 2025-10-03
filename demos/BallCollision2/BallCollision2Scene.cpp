@@ -95,8 +95,8 @@ void BallCollision2Scene::initializeObjects() {
                  1.0f,                           // mass = 1.0 (dynamic)
                  randomVelocity);                // initial velocity: random direction
     
-    // Store reference to first ball (5th object: ground + 4 walls + 1st ball)
-    m_ball1 = m_objects.size() >= 5 ? m_objects[4].physicsBody.get() : nullptr;
+    // Store reference to first ball (6th object: ground + 4 walls + 1st ball)
+    m_ball1 = m_objects.size() >= 6 ? m_objects[5].physicsBody.get() : nullptr;
     
     // Create second ball with different angle for ball-to-ball collisions
     float secondAngle = 200.0f; // Different angle for interesting collisions
@@ -114,8 +114,8 @@ void BallCollision2Scene::initializeObjects() {
                  1.0f,                           // mass = 1.0 (dynamic)
                  secondVelocity);                // initial velocity: different random direction
     
-    // Store reference to second ball (6th object: ground + 4 walls + 2 balls)
-    m_ball2 = m_objects.size() >= 6 ? m_objects[5].physicsBody.get() : nullptr;
+    // Store reference to second ball (7th object: ground + 4 walls + 2 balls)
+    m_ball2 = m_objects.size() >= 7 ? m_objects[6].physicsBody.get() : nullptr;
     
     // Make all objects frictionless with perfect bounce for endless ball movement
     for (auto& object : m_objects) {

@@ -44,7 +44,8 @@ void FollowCamera::update(GLFWwindow* window, float deltaTime) {
     setPosition(m_currentPosition);
     calculateLookAtOrientation(m_currentPosition, m_currentLookAtTarget);
     
-    // Don't call base class update to avoid input processing
+    // Don't call base class update to avoid input processing and glfwGetKey calls
+    // Follow cameras don't need input handling
 }
 
 void FollowCamera::calculateLookAtOrientation(glm::vec3 position, glm::vec3 target) {
